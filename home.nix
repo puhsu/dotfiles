@@ -2,8 +2,10 @@
 {
   # Home Manager needs a bit of information about you and the paths it should
   # manage.
-  home.username = "puhsu";
-  home.homeDirectory = "/Users/puhsu";
+  
+  # This is in flake.nix for now, TODO, find a cleaner way to share the same home.nix between different machines and users
+  # home.username = (builtins.getEnv "USER");
+  # home.homeDirectory = (/. + builtins.getEnv "HOME");
 
   # This value determines the Home Manager release that your configuration is
   # compatible with. This helps avoid breakage when a new Home Manager release
@@ -23,8 +25,9 @@
 
   # I keep emacs dotfiles symlinked to edit .emacs.d and don't have to reload
   # home-manager config
+  # TODO user and system agnostic naming
   home.file = {
-    ".emacs.d".source = config.lib.file.mkOutOfStoreSymlink "/Users/puhsu/dotfiles/.emacs.d";
+    ".emacs.d".source = config.lib.file.mkOutOfStoreSymlink "/Users/irubachev/dotfiles/.emacs.d";
   };
 
   # You can also manage environment variables but you will have to manually
