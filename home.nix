@@ -26,6 +26,7 @@
   # I keep emacs dotfiles symlinked to edit .emacs.d and don't have to reload
   # home-manager config
   # TODO user and system agnostic naming
+
   home.file = {
     ".emacs.d".source = config.lib.file.mkOutOfStoreSymlink "/Users/irubachev/dotfiles/.emacs.d";
   };
@@ -50,10 +51,17 @@
   programs.emacs = {
     enable = true;
     package = pkgs.emacs29;
+    # Moved packages to manual install for now
     extraPackages = epkgs: [
-      # TODO learn how to fix particular version 
-      epkgs.eglot
+      epkgs.vertico
+      epkgs.orderless
+      epkgs.marginalia
+      epkgs.consult
+      epkgs.embark
+      epkgs.corfu
+      epkgs.cape
       epkgs.magit
+      epkgs.modus-themes
       epkgs.nix-mode
     ];
   };
@@ -98,6 +106,12 @@
         };
       }
     ];
+  };
+
+  programs.git = {
+    enable = true;
+    userEmail = "irubachev@gmail.com";
+    userName = "irubachev";
   };
 
   # Let Home Manager install and manage itself.

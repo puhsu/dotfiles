@@ -6,16 +6,6 @@
 	<true/>
 	<key>AlternateMouseScroll</key>
 	<true/>
-	<key>AppleAntiAliasingThreshold</key>
-	<integer>1</integer>
-	<key>ApplePressAndHoldEnabled</key>
-	<false/>
-	<key>AppleScrollAnimationEnabled</key>
-	<integer>0</integer>
-	<key>AppleSmoothFixedFontsSizeThreshold</key>
-	<integer>1</integer>
-	<key>AppleWindowTabbingMode</key>
-	<string>manual</string>
 	<key>ClosingTmuxTabKillsTmuxWindows</key>
 	<true/>
 	<key>ClosingTmuxTabKillsTmuxWindows_selection</key>
@@ -34,6 +24,10 @@
 	<true/>
 	<key>LeftOption</key>
 	<integer>2</integer>
+	<key>NeverWarnAboutShortLivedSessions_14EE06BC-932B-4622-B27D-24E3C1ABE4A8</key>
+	<true/>
+	<key>NeverWarnAboutShortLivedSessions_14EE06BC-932B-4622-B27D-24E3C1ABE4A8_selection</key>
+	<integer>0</integer>
 	<key>New Bookmarks</key>
 	<array>
 		<dict>
@@ -231,7 +225,7 @@
 			<key>Columns</key>
 			<integer>80</integer>
 			<key>Command</key>
-			<string>/Users/puhsu/.nix-profile/bin/fish</string>
+			<string>/Users/irubachev/.nix-profile/bin/fish</string>
 			<key>Cursor Color</key>
 			<dict>
 				<key>Blue Component</key>
