@@ -34,7 +34,7 @@
   # TODO user and system agnostic naming
 
   home.file = {
-    ".emacs.d".source = config.lib.file.mkOutOfStoreSymlink "/Users/irubachev/dotfiles/.emacs.d";
+    ".emacs.d".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/dotfiles/.emacs.d";
   };
 
   # You can also manage environment variables but you will have to manually

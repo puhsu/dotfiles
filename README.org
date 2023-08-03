@@ -1,0 +1,15 @@
+#+title: nix + home-manager configuration files
+
+To run this configuration on a new machine. First, install nix:
+
+#+begin_src sh
+curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install
+#+end_src
+
+Then, run the config for the system (mac or linux) with
+
+#+begin_src sh
+git clone https://github.com/puhsu/dotfiles
+nix run ./dotfiles"#homeConfiguration"
+#+end_src
+
