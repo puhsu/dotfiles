@@ -27,7 +27,6 @@
 (setq use-short-answer t)
 (defalias 'yes-or-no-p 'y-or-n-p)
 
-
 (setq make-backup-files nil)    ;; stop creating backup~ files
 (setq auto-save-default nil)    ;; stop creating #autosave# files
 (setq create-lockfiles nil)     ;; stop creating .# files
@@ -53,6 +52,16 @@
 (setq scroll-preserve-screen-position t)
 (setq fast-but-imprecise-scrolling t)
 
+;; fixup the PATH environment variableTODO (make it load a file
+;; instead, link with home-manager somehow)
+
+;; (list exec-path)
+;; exec-path
+;; (setenv "PATH" (concat "/Users/irubachev/.nix-profile/bin:" "/nix/var/nix/profiles/default/bin:" (getenv "PATH")))
+(setq exec-path (append '("/Users/irubachev/.nix-profile/bin" "/nix/var/nix/profiles/default/bin") exec-path))
+
+
+
 
 (add-hook 'after-save-hook #'executable-make-buffer-file-executable-if-script-p)
 
@@ -61,7 +70,7 @@
 ;; This section inspired by the article "Demystifying Emacs’s Window
 ;; Manager" found here:
 ;; https://www.masteringemacs.org/article/demystifying-emacs-window-manager
-;; TODO read, organize
+;; TODO read, understand how it works and organize
 
 (add-to-list 'display-buffer-alist
              '("\\*Help\\*"
@@ -88,8 +97,7 @@
 
 (require 'modus-themes)
 
-
-(add-to-list 'default-frame-alist '(font . "PragmataPro Mono Liga 12"))
+(add-to-list 'default-frame-alist '(font . "PragmataPro Mono Liga 13"))
 
 (defun p-enable-line-numbers ()
   "Wrapper around display-line-numbers-mode that disables line numbers"
@@ -106,6 +114,7 @@
 (load-theme 'modus-vivendi :no-confirm)
 
 ;; Completion
+
 (global-corfu-mode 1) ;; in buffer drop-down menu
 (vertico-mode 1)      ;; vertical completion for everything
 (marginalia-mode 1)
@@ -114,16 +123,16 @@
 (setq vertico-cycle t)
 (setq vertico-count 17)
 
-;; What is this?
+;; TODO What is this?
 
-;; (defun crm-indicator (args)
-;;   (cons (format "[CRM%s] %s"
-;;                 (replace-regexp-in-string
-;;                  "\\`\\[.*?]\\*\\|\\[.*?]\\*\\'" ""
-;;                  crm-separator)
-;;                 (car args))
-;;         (cdr args)))
-;; (advice-add #'completing-read-multiple :filter-args #'crm-indicator)
+(defun crm-indicator (args)
+  (cons (format "[CRM%s] %s"
+                (replace-regexp-in-string
+                 "\\`\\[.*?]\\*\\|\\[.*?]\\*\\'" ""
+                 crm-separator)
+                (car args))
+        (cdr args)))
+(advice-add #'completing-read-multiple :filter-args #'crm-indicator)
 
 (keymap-set vertico-map "DEL" #'vertico-directory-delete-char)
 
@@ -139,7 +148,21 @@
 
 
 ;; IDE settings
+(add-hook 'python-mode-hook #'eglot-ensure)
+(setq python-flymake-command '("ruff" "--quiet" "--stdin-filename=stdin" "-"))
 
+(defun p-setup-python-linting ()
+  ;; (remove-hook 'flymake-diagnostic-functions 'eglot-flymake-backend) 
+  (add-hook 'flymake-diagnostic-functions 'python-flymake))
+
+(add-hook 'eglot-managed-mode-hook #'p-setup-python-linting)
+
+
+(setq-default project-vc-ignores '("./exp"))  ;; for my particular use-case
+
+
+;; TODO
+;; - convinience function to resize buffer 
 
 
 

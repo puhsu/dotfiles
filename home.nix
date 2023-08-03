@@ -6,6 +6,8 @@
   # This is in flake.nix for now, TODO, find a cleaner way to share the same home.nix between different machines and users
   # home.username = (builtins.getEnv "USER");
   # home.homeDirectory = (/. + builtins.getEnv "HOME");
+  home.username = "irubachev";
+  home.homeDirectory = "/Users/irubachev";
 
   # This value determines the Home Manager release that your configuration is
   # compatible with. This helps avoid breakage when a new Home Manager release
@@ -19,7 +21,12 @@
   # The home.packages option allows you to install Nix packages into your
   # environment.
   home.packages = [
+    pkgs.micromamba  # when in teams, hard to work with nix python :tear_emojy:
+    pkgs.unison 
+    # TODO add python script file-watcher here (optional emacs after-save hook)
+    pkgs.syncthing
     pkgs.ripgrep
+    pkgs.ruff
     pkgs.nodePackages.pyright
   ];
 
@@ -42,7 +49,7 @@
   #
   # if you don't want to manage your shell through Home Manager.
   home.sessionVariables = {
-    # EDITOR = "emacs";
+    EDITOR = "emacs";
   };
 
   # TODO think about modularizing the config later and loading modules
