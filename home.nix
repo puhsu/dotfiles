@@ -22,8 +22,7 @@
   home.packages = [
     pkgs.micromamba  # when in teams, hard to work with nix python :tear_emojy:
     pkgs.unison 
-    # TODO add python script file-watcher here (optional emacs after-save hook)
-    pkgs.syncthing
+    # TODO add python script file-watcher here (optional: emacs after-save hook)
     pkgs.ripgrep
     pkgs.ruff
     pkgs.nodePackages.pyright
@@ -31,22 +30,12 @@
 
   # I keep emacs dotfiles symlinked to edit .emacs.d and don't have to reload
   # home-manager config
-  # TODO user and system agnostic naming
 
   home.file = {
     ".emacs.d".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/dotfiles/.emacs.d";
+    ".profile".text = ''XDG_RUNTIME_DIR=$(mktemp -d) exec "~/.nix-profile/bin/fish"'';
   };
 
-  # You can also manage environment variables but you will have to manually
-  # source
-  #
-  #  ~/.nix-profile/etc/profile.d/hm-session-vars.sh
-  #
-  # or
-  #
-  #  /etc/profiles/per-user/puhsu/etc/profile.d/hm-session-vars.sh
-  #
-  # if you don't want to manage your shell through Home Manager.
   home.sessionVariables = {
     EDITOR = "emacs";
   };
@@ -57,7 +46,6 @@
   programs.emacs = {
     enable = true;
     package = pkgs.emacs29;
-    # Moved packages to manual install for now
     extraPackages = epkgs: [
       epkgs.vertico
       epkgs.orderless
@@ -99,6 +87,14 @@
 
   programs.fish = {
     enable = true;
+    interactiveShellInit = ''
+        # >>> mamba initialize >>>
+        set -gx MAMBA_EXE "${config.home.homeDirectory}/.nix-profile/bin/micromamba"
+        set -gx MAMBA_ROOT_PREFIX "${config.home.homeDirectory}/micromamba"
+        $MAMBA_EXE shell hook --shell fish --prefix $MAMBA_ROOT_PREFIX | source
+        # <<< mamba initialize <<<
+    '';
+
     plugins = [
       # Need this when using Fish as a default macOS shell in order to pick
       # up ~/.nix-profile/bin

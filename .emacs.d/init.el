@@ -54,17 +54,14 @@
 
 ;; fixup the PATH environment variableTODO (make it load a file
 ;; instead, link with home-manager somehow)
+;; use envrc too, TODO work needed here, to manual for now
+;; check out micromamba.el too
 
-;; (list exec-path)
-;; exec-path
-;; (setenv "PATH" (concat "/Users/irubachev/.nix-profile/bin:" "/nix/var/nix/profiles/default/bin:" (getenv "PATH")))
-(setq exec-path (append '("/Users/irubachev/.nix-profile/bin" "/nix/var/nix/profiles/default/bin") exec-path))
-
-
+(setenv "PATH" (concat "/Users/irubachev/micromamba/envs/tabr/bin:" "/Users/irubachev/.nix-profile/bin:" "/nix/var/nix/profiles/default/bin:" (getenv "PATH")))
+(setq exec-path (append '("/Users/irubachev/micromamba/envs/tabr/bin" "/Users/irubachev/.nix-profile/bin" "/nix/var/nix/profiles/default/bin") exec-path))
 
 
 (add-hook 'after-save-hook #'executable-make-buffer-file-executable-if-script-p)
-
 
 ;; Window configuration for special windows.
 ;; This section inspired by the article "Demystifying Emacs’s Window
@@ -149,22 +146,20 @@
 
 ;; IDE settings
 (add-hook 'python-mode-hook #'eglot-ensure)
-(setq python-flymake-command '("ruff" "--quiet" "--stdin-filename=stdin" "-"))
 
-(defun p-setup-python-linting ()
-  ;; (remove-hook 'flymake-diagnostic-functions 'eglot-flymake-backend) 
-  (add-hook 'flymake-diagnostic-functions 'python-flymake))
-
-(add-hook 'eglot-managed-mode-hook #'p-setup-python-linting)
+;; TODO find a way to use ruff with emacs
+;;(setq python-flymake-command '("ruff" "--quiet" "--stdin-filename=stdin" "-"))
+;; (defun p-setup-python-linting ()
+;;   ;; (remove-hook 'flymake-diagnostic-functions 'eglot-flymake-backend) 
+;;   (add-hook 'flymake-diagnostic-functions 'python-flymake))
+;; (add-hook 'eglot-managed-mode-hook #'p-setup-python-linting)
 
 
 (setq-default project-vc-ignores '("./exp"))  ;; for my particular use-case
 
-
 ;; TODO
+
 ;; - convinience function to resize buffer 
-
-
 
 ;; Profile emacs startup
 
