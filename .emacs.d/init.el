@@ -59,6 +59,8 @@
 
 (setenv "PATH" (concat "/Users/irubachev/micromamba/envs/tabr/bin:" "/Users/irubachev/.nix-profile/bin:" "/nix/var/nix/profiles/default/bin:" (getenv "PATH")))
 (setq exec-path (append '("/Users/irubachev/micromamba/envs/tabr/bin" "/Users/irubachev/.nix-profile/bin" "/nix/var/nix/profiles/default/bin") exec-path))
+(setq safe-local-variable-values '((eval setenv "PYTHONPATH" "/Users/irubachev/repos/p")))
+(setq load-path (cons (concat user-emacs-directory "lisp") load-path))
 
 
 (add-hook 'after-save-hook #'executable-make-buffer-file-executable-if-script-p)
@@ -87,6 +89,31 @@
                (side . left)
                (window-width . 70)))
 
+;; My functions
+
+(defun +beginning-of-line (arg)
+ "Move point back to indentation of beginning of line.
+
+Move point to the first non-whitespace character on this line.
+If point is already there, move to the beginning of the line.
+Effectively toggle between the first non-whitespace character and
+the beginning of the line.
+
+If ARG is not nil or 1, move forward ARG - 1 lines first.  If
+point reaches the beginning or end of the buffer, stop there."
+ (interactive "^p")
+  (setq arg (or arg 1))
+  ;; Move lines first
+  (when (/= arg 1)
+    (let ((line-move-visual nil))
+      (forward-line (1- arg))))
+  ;; Begin of line or back to indent
+  (let ((orig-point (point)))
+    (back-to-indentation)
+    (when (= orig-point (point))
+      (move-beginning-of-line 1))))
+
+(global-set-key [remap move-beginning-of-line] '+beginning-of-line)
 
 ;; Modules
 
@@ -104,10 +131,6 @@
   (add-hook (intern (format "%s-hook" mode)) #'p-enable-line-numbers))
 
 (setq display-line-numbers-grow-only t)
-
-;; TODO theme customizations
-;; - no bold in line numbers (or make all lines higher)
-
 (load-theme 'modus-vivendi :no-confirm)
 
 ;; Completion
@@ -116,27 +139,33 @@
 (vertico-mode 1)      ;; vertical completion for everything
 (marginalia-mode 1)
 
+(setq corfu-auto t)
+(setq corfu-auto-prefix 2)
+(setq corfu-auto-delay 0.1)
+
 (setq vertico-resize nil)
 (setq vertico-cycle t)
 (setq vertico-count 17)
 
 ;; TODO What is this?
 
-(defun crm-indicator (args)
-  (cons (format "[CRM%s] %s"
-                (replace-regexp-in-string
-                 "\\`\\[.*?]\\*\\|\\[.*?]\\*\\'" ""
-                 crm-separator)
-                (car args))
-        (cdr args)))
-(advice-add #'completing-read-multiple :filter-args #'crm-indicator)
+;; (defun crm-indicator (args)
+;;   (cons (format "[CRM%s] %s"
+;;                 (replace-regexp-in-string
+;;                  "\\`\\[.*?]\\*\\|\\[.*?]\\*\\'" ""
+;;                  crm-separator)
+;;                 (car args))
+;;         (cdr args)))
+;; (advice-add #'completing-read-multiple :filter-args #'crm-indicator)
 
+(add-hook 'rfn-eshadow-update-overlay-hook #'vertico-directory-tidy)
+(add-hook 'minibuffer-setup-hook #'vertico-repeat-save)
 (keymap-set vertico-map "DEL" #'vertico-directory-delete-char)
 
-
+;; TODO fixed in emacs 30 (https://github.com/minad/vertico#tramp-hostname-and-username-completion)
 (setq completion-styles '(orderless basic)
       completion-category-defaults nil
-      completion-category-overrides '((file (styles partial-completion))))
+      completion-category-overrides '((file (styles basic partial-completion))))
 
 (setq marginalia-annotators
       '(marginalia-annotators-heavy
@@ -146,6 +175,43 @@
 
 ;; IDE settings
 (add-hook 'python-mode-hook #'eglot-ensure)
+(setq python-indent-def-block-scale 1)
+
+(require 'treesit)
+
+(defun p-setup-install-grammars ()
+    "Install Tree-sitter grammars if they are absent."
+    (interactive)
+    (dolist (grammar
+             '((python "https://github.com/tree-sitter/tree-sitter-python")
+               ;; add more grammars
+               ))
+      (add-to-list 'treesit-language-source-alist grammar)
+      ;; Only install `grammar' if we don't already have it
+      ;; installed. However, if you want to *update* a grammar then
+      ;; this obviously prevents that from happening.
+      (unless (treesit-language-available-p (car grammar))
+        (treesit-install-language-grammar (car grammar)))))
+
+(p-setup-install-grammars)
+;; (dolist (mapping '((python-mode . python-ts-mode)
+;;                    ;; TODO add more grammars
+;;                    ))
+;;   (add-to-list 'major-mode-remap-alist mapping))
+
+
+
+
+
+;; Optional, but recommended. Tree-sitter enabled major modes are
+;; distinct from their ordinary counterparts.
+;;
+;; You can remap major modes with `major-mode-remap-alist'. Note
+;; that this does *not* extend to hooks! Make sure you migrate them
+;; also
+
+
+
 
 ;; TODO find a way to use ruff with emacs
 ;;(setq python-flymake-command '("ruff" "--quiet" "--stdin-filename=stdin" "-"))
@@ -157,9 +223,27 @@
 
 (setq-default project-vc-ignores '("./exp"))  ;; for my particular use-case
 
-;; TODO
+;; org-roam
+(setq org-roam-directory (file-truename "~/org"))
+(setq org-return-follows-link t)
 
-;; - convinience function to resize buffer 
+(with-eval-after-load 'org
+  (add-to-list 'org-modules 'org-tempo t)
+  (org-roam-db-autosync-mode))
+
+;; Optimize the agenda setup
+(require 'org-roam-optimize-agenda)
+
+;; kick-start the above module with this: 
+
+;; (dolist (file (org-roam-list-files))
+;;   (message "processing %s" file)
+;;   (with-current-buffer (or (find-buffer-visiting file)
+;;                            (find-file-noselect file))
+;;     (vulpea-project-update-tag)
+;;     (save-buffer)))
+
+;; TODOs, see the emacs-configuration.org for tasks
 
 ;; Profile emacs startup
 
@@ -169,3 +253,17 @@
                      (emacs-init-time))))
 
 
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(safe-local-variable-values
+   '((eval setenv "PYTHONPATH" "/Users/irubachev/repos/big")
+     (eval setenv "PYTHONPATH" "/Users/irubachev/repos/p"))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )

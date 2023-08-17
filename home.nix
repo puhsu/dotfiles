@@ -57,6 +57,7 @@
       epkgs.magit
       epkgs.modus-themes
       epkgs.nix-mode
+      epkgs.org-roam
     ];
   };
 
