@@ -25,6 +25,7 @@
     # TODO add python script file-watcher here (optional: emacs after-save hook)
     pkgs.ripgrep
     pkgs.ruff
+    pkgs.aria
     pkgs.nodePackages.pyright
   ];
 
