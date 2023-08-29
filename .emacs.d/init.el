@@ -194,6 +194,16 @@ point reaches the beginning or end of the buffer, stop there."
         (treesit-install-language-grammar (car grammar)))))
 
 (p-setup-install-grammars)
+
+(defun +unison-sync ()
+  (when 
+      (string-prefix-p "/Users/irubachev/repos" buffer-file-name)
+      (save-window-excursion
+        (async-shell-command "unison terranova -ui text"))))
+
+(add-hook 'after-save-hook '+unison-sync)
+
+
 ;; (dolist (mapping '((python-mode . python-ts-mode)
 ;;                    ;; TODO add more grammars
 ;;                    ))
@@ -226,13 +236,19 @@ point reaches the beginning or end of the buffer, stop there."
 ;; org-roam
 (setq org-roam-directory (file-truename "~/org"))
 (setq org-return-follows-link t)
+(setq org-startup-folded 'show2levels)
 
 (with-eval-after-load 'org
+  (require 'org-roam-optimize-agenda)
+
   (add-to-list 'org-modules 'org-tempo t)
-  (org-roam-db-autosync-mode))
+  (org-roam-db-autosync-mode)
+  )
+
+
 
 ;; Optimize the agenda setup
-(require 'org-roam-optimize-agenda)
+
 
 ;; kick-start the above module with this: 
 

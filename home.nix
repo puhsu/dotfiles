@@ -23,6 +23,7 @@
     pkgs.micromamba  # when in teams, hard to work with nix python :tear_emojy:
     pkgs.unison 
     # TODO add python script file-watcher here (optional: emacs after-save hook)
+    pkgs.p7zip
     pkgs.ripgrep
     pkgs.ruff
     pkgs.aria
