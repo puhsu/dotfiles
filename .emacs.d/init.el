@@ -65,6 +65,18 @@
 
 (add-hook 'after-save-hook #'executable-make-buffer-file-executable-if-script-p)
 
+(defun add-linter-ignore-comment ()
+  "Add a linter ignore comment for the current line in a Python file."
+  (interactive)
+  (save-excursion
+    (end-of-line)
+    (delete-trailing-whitespace (line-beginning-position) (line-end-position))
+    (insert "  # noqa")))
+
+;; code, python, ignore
+(global-set-key (kbd "C-c p i") 'add-linter-ignore-comment)
+
+
 ;; Window configuration for special windows.
 ;; This section inspired by the article "Demystifying Emacs’s Window
 ;; Manager" found here:
@@ -147,6 +159,9 @@ point reaches the beginning or end of the buffer, stop there."
 (setq vertico-cycle t)
 (setq vertico-count 17)
 
+;; this is great in buffer search 
+(ctrlf-mode +1)
+
 ;; TODO What is this?
 
 ;; (defun crm-indicator (args)
@@ -172,10 +187,44 @@ point reaches the beginning or end of the buffer, stop there."
         marginalia-annotators-light
         nil))
 
+;; better help
+(global-set-key (kbd "C-h f") #'helpful-callable)
+(global-set-key (kbd "C-h v") #'helpful-variable)
+(global-set-key (kbd "C-h k") #'helpful-key)
+(global-set-key (kbd "C-h x") #'helpful-command)
 
-;; IDE settings
-(add-hook 'python-mode-hook #'eglot-ensure)
-(setq python-indent-def-block-scale 1)
+
+;; IDE settingsx
+;; (require 'lsp-pyright)
+;; (require 'lsp-ruff-lsp)
+
+(add-hook 'python-mode-hook 'lsp)
+(setopt lsp-pyright-typechecking-mode "basic")
+
+(with-eval-after-load 'lsp-mode
+  (setq lsp-file-watch-ignored-directories (append lsp-file-watch-ignored-directories '("exp" "data" "cache"))))
+
+
+;; TODO disable all diagnostics from pyright
+
+
+
+;; (with-eval-after-load 'lsp-mode
+;;   (setq lsp-diagnostic-filter 'my/filter-pyright)
+;;   (lsp-defun my/filter-pyright ((params &as &PublishDiagnosticsParams :diagnostics)
+;;                                 _workspace)
+;;     (lsp:set-publish-diagnostics-params-diagnostics
+;;      params
+;;      (or (seq-filter (-lambda ((&Diagnostic :source?))
+;;                        (not (string= "pyright" source?)))
+;;                      diagnostics)
+;;          []))
+;;     params)
+;;   )
+
+;; (setq lsp-ruff-lsp-show-notifications "always")
+;; (setq lsp-ruff-lsp-ruff-path "~/.nix-profile/bin/ruff")
+;; (setq python-indent-def-block-scale 1)
 
 (require 'treesit)
 
@@ -201,8 +250,8 @@ point reaches the beginning or end of the buffer, stop there."
       (save-window-excursion
         (async-shell-command "unison terranova -ui text"))))
 
-(add-hook 'after-save-hook '+unison-sync)
-
+;; (add-hook 'after-save-hook '+unison-sync)
+(remove-hook 'after-save-hook '+unison-sync)
 
 ;; (dolist (mapping '((python-mode . python-ts-mode)
 ;;                    ;; TODO add more grammars
@@ -230,6 +279,8 @@ point reaches the beginning or end of the buffer, stop there."
 ;;   (add-hook 'flymake-diagnostic-functions 'python-flymake))
 ;; (add-hook 'eglot-managed-mode-hook #'p-setup-python-linting)
 
+;; pdftools
+(pdf-loader-install)
 
 (setq-default project-vc-ignores '("./exp"))  ;; for my particular use-case
 
@@ -237,10 +288,17 @@ point reaches the beginning or end of the buffer, stop there."
 (setq org-roam-directory (file-truename "~/org"))
 (setq org-return-follows-link t)
 (setq org-startup-folded 'show2levels)
+(setq org-todo-keywords
+      '((sequence "TODO(t)" "WAIT(w)" "|" "DONE(d)")
+        (sequence "|" "CANCELED(c)")))
+
 
 (with-eval-after-load 'org
   (require 'org-roam-optimize-agenda)
+  (require 'org-noter)
+  (require 'org-pdftools)
 
+  (org-pdftools-setup-link)
   (add-to-list 'org-modules 'org-tempo t)
   (org-roam-db-autosync-mode)
   )

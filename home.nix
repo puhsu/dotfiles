@@ -24,10 +24,15 @@
     pkgs.unison 
     # TODO add python script file-watcher here (optional: emacs after-save hook)
     pkgs.p7zip
+    pkgs.yt-dlp
     pkgs.ripgrep
     pkgs.ruff
+    pkgs.ffmpeg
     pkgs.aria
+    pkgs.wget
     pkgs.nodePackages.pyright
+    pkgs.texlive.combined.scheme-minimal
+    pkgs.python311Packages.ruff-lsp
   ];
 
   # I keep emacs dotfiles symlinked to edit .emacs.d and don't have to reload
@@ -57,9 +62,19 @@
       epkgs.corfu
       epkgs.cape
       epkgs.magit
+      epkgs.lsp-mode
+      epkgs.lsp-pyright
+      epkgs.consult-lsp
+      epkgs.flycheck
+      epkgs.gcmh
+      epkgs.ctrlf
       epkgs.modus-themes
       epkgs.nix-mode
       epkgs.org-roam
+      epkgs.org-noter
+      epkgs.org-pdftools
+      epkgs.pdf-tools
+      epkgs.helpful
     ];
   };
 
