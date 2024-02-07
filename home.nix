@@ -1,3 +1,4 @@
+
 { config, pkgs, lib, ... }:
 {
   # Home Manager needs a bit of information about you and the paths it should
@@ -22,10 +23,18 @@
   home.packages = [
     pkgs.micromamba  # when in teams, hard to work with nix python :tear_emojy:
     pkgs.unison 
+    pkgs.jq
     # TODO add python script file-watcher here (optional: emacs after-save hook)
+    pkgs.geckodriver
+    pkgs.typst
+    pkgs.llama-cpp
+    pkgs.ollama
+    pkgs.tdlib
+    pkgs.rustup # TODO only for the unison synchronizer
     pkgs.p7zip
     pkgs.yt-dlp
     pkgs.ripgrep
+    pkgs.fd
     pkgs.ruff
     pkgs.ffmpeg
     pkgs.aria
@@ -64,11 +73,16 @@
       epkgs.magit
       epkgs.lsp-mode
       epkgs.lsp-pyright
+      epkgs.eglot
+      epkgs.gptel
       epkgs.consult-lsp
+      epkgs.jupyter
       epkgs.flycheck
       epkgs.gcmh
       epkgs.ctrlf
+      epkgs.svg-lib
       epkgs.modus-themes
+      epkgs.nano-modeline
       epkgs.nix-mode
       epkgs.org-roam
       epkgs.org-noter

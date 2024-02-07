@@ -3,9 +3,9 @@
 
   inputs = {
     # Specify the source of Home Manager and Nixpkgs.
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-23.05";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     home-manager = {
-      url = "github:nix-community/home-manager/release-23.05";
+      url = "github:nix-community/home-manager/master";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
@@ -15,23 +15,25 @@
     homeConfigurations."mac" = home-manager.lib.homeManagerConfiguration {
       pkgs = nixpkgs.legacyPackages.aarch64-darwin;
       modules = [ 
-	      ./home.nix
         {  
           home.homeDirectory = "/Users/irubachev";
         }
+	      ./home.nix
 	    ];
     };
     
-    # dev servers config
+    # dev non-nixos servers configs
     homeConfigurations."linux" = home-manager.lib.homeManagerConfiguration {
       pkgs = nixpkgs.legacyPackages.x86_64-linux;
       modules = [ 
-	      ./home.nix
-        {  
+        {
           home.homeDirectory = "/home/irubachev";
         }
+	      ./home.nix
 	    ];          
     };
+
+    
 
   };
 }

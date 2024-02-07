@@ -10,6 +10,9 @@ Then, run the config for the system (mac or linux) with
 
 #+begin_src sh
 git clone https://github.com/puhsu/dotfiles
-nix run ./dotfiles"#homeConfiguration"
+# For a linux machine
+nix run ./dotfiles"#homeConfigurations.linux.activationPackage"
+# For a macos machine
+nix run ./dotfiles"#homeConfigurations.mac.activationPackage"
 #+end_src
 

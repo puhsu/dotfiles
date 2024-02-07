@@ -1,0 +1,12 @@
+# elisp ignore
+.lsp-session-v1
+.org-id-locations
+auto-save-list
+bookmarks
+eln-cache
+history
+org-roam.db
+projects
+tramp
+transient
+tree-sitter
