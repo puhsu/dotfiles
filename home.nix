@@ -24,6 +24,7 @@
     pkgs.micromamba  # when in teams, hard to work with nix python :tear_emojy:
     pkgs.unison 
     pkgs.jq
+    pkgs.shortcat
     # TODO add python script file-watcher here (optional: emacs after-save hook)
     pkgs.geckodriver
     pkgs.typst
@@ -39,7 +40,9 @@
     pkgs.ffmpeg
     pkgs.aria
     pkgs.wget
+    pkgs.yarn
     pkgs.nodePackages.pyright
+    pkgs.nodePackages.pnpm
     pkgs.texlive.combined.scheme-minimal
     pkgs.python311Packages.ruff-lsp
   ];

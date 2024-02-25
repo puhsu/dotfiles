@@ -14,8 +14,9 @@
     # dev laptop config
     homeConfigurations."mac" = home-manager.lib.homeManagerConfiguration {
       pkgs = nixpkgs.legacyPackages.aarch64-darwin;
+      
       modules = [ 
-        {  
+        {
           home.homeDirectory = "/Users/irubachev";
         }
 	      ./home.nix
@@ -33,7 +34,13 @@
 	    ];          
     };
 
-    
+    # NixOS server config
+    nixosConfigurations."bubu" = nixpkgs.lib.nixosSystem {
+      system = "x86_64-linux";
+      modules = [
+        ./bubu.nix
+      ];
+    };
 
   };
 }

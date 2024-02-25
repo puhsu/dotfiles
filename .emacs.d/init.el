@@ -345,6 +345,14 @@ point reaches the beginning or end of the buffer, stop there."
   )
 
 
+(defun p-maximize-current-window ()
+  "Maximize current window, make it occupy the whole screen"
+  (interactive)
+  (let (frame (selected-frame))
+    (set-frame-size frame (display-pixel-width) (display-pixel-height) t)
+    (set-frame-position frame 0 0)))
+
+(global-set-key (kbd "C-x 5 m") 'p-maximize-current-window)
 
 ;; Optimize the agenda setup
 
