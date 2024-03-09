@@ -175,6 +175,12 @@ point reaches the beginning or end of the buffer, stop there."
 
 ;; embark actions
 (global-set-key (kbd "C-.") 'embark-act)
+(setq embark-prompter 'embark-completing-read-prompter)
+(setq embark-indicators
+      '(embark-highlight-indicator))
+
+;; consult keybindings
+(global-set-key (kbd "C-x C-g") 'consult-ripgrep)
 
 (setq corfu-auto t)
 (setq corfu-auto-prefix 2)
@@ -274,10 +280,10 @@ point reaches the beginning or end of the buffer, stop there."
   (when (string-prefix-p "/Users/irubachev/repos" buffer-file-name)
     (save-window-excursion
       (ignore-errors
-        (async-shell-command "unison big -ui text -auto -batch")))))
+        (async-shell-command "unison mango -ui text -auto -batch")))))
 
 (add-hook 'after-save-hook '+unison-sync)
-;; (remove-hook 'after-save-hook '+unison-sync)
+(remove-hook 'after-save-hook '+unison-sync)
 
 ;; (dolist (mapping '((python-mode . python-ts-mode)
 ;;                    ;; TODO add more grammars

@@ -24,7 +24,6 @@
     pkgs.micromamba  # when in teams, hard to work with nix python :tear_emojy:
     pkgs.unison 
     pkgs.jq
-    pkgs.shortcat
     # TODO add python script file-watcher here (optional: emacs after-save hook)
     pkgs.geckodriver
     pkgs.typst
@@ -71,6 +70,8 @@
       epkgs.marginalia
       epkgs.consult
       epkgs.embark
+      epkgs.embark-consult
+      epkgs.wgrep
       epkgs.corfu
       epkgs.cape
       epkgs.magit

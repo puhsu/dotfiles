@@ -1,5 +1,5 @@
 {
-  description = "Home Manager configuration of puhsu";
+  description = "PUHSU's Nix Configuration";
 
   inputs = {
     # Specify the source of Home Manager and Nixpkgs.
@@ -11,7 +11,7 @@
   };
 
   outputs = { nixpkgs, home-manager, ...}: {
-    # dev laptop config
+    # MacOS Laptop Configurations
     homeConfigurations."mac" = home-manager.lib.homeManagerConfiguration {
       pkgs = nixpkgs.legacyPackages.aarch64-darwin;
       
@@ -23,7 +23,7 @@
 	    ];
     };
     
-    # dev non-nixos servers configs
+    # Non NixOS dev server home configs
     homeConfigurations."linux" = home-manager.lib.homeManagerConfiguration {
       pkgs = nixpkgs.legacyPackages.x86_64-linux;
       modules = [ 
