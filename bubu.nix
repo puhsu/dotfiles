@@ -49,8 +49,9 @@
     isNormalUser = true;
     shell = pkgs.fish;
     openssh.authorizedKeys.keys = [
-    "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBDrz1C/Ra9cRzg2nnZvc5DthwcHPJzUykBCrWtsAO+vwucOKNMu4ONXV8hThvX6h97voLC8XA8rV9Vf9Y2Nd4yU= irubachev@irubachev-osx"
-  ];
+      "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBDrz1C/Ra9cRzg2nnZvc5DthwcHPJzUykBCrWtsAO+vwucOKNMu4ONXV8hThvX6h97voLC8XA8rV9Vf9Y2Nd4yU= irubachev@irubachev-osx"
+    ];
+  };
 
   users.users.root.openssh.authorizedKeys.keys =
     config.users.users.cadey.openssh.authorizedKeys.keys;
