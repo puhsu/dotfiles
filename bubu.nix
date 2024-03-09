@@ -36,15 +36,6 @@
     '';
   };
 
-  packages = [
-    pkgs.git
-    pkgs.emacs
-  ];
-
-  users.users.cadey = {
-    isNormalUser = true;
-  };
-
   users.users.irubachev = {
     isNormalUser = true;
     shell = pkgs.fish;
