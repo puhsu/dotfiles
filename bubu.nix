@@ -11,7 +11,7 @@
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
-  networking.hostname = "bubu";
+  networking.hostName = "bubu";
   networking.firewall = {
     allowedTCPPorts = [ 22 80 443 ];
   };
