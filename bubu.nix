@@ -11,10 +11,14 @@
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
+  networking.hostname = "bubu";
   networking.firewall = {
     allowedTCPPorts = [ 22 80 443 ];
   };
-  
+
+  programs.fish.enable = true;
+  programs.git.enable = true;
+
   services.qemuGuest = {
     enable = true;
   };
