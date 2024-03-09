@@ -45,5 +45,5 @@
   };
 
   users.users.root.openssh.authorizedKeys.keys =
-    config.users.users.cadey.openssh.authorizedKeys.keys;
+    config.users.users.irubachev.openssh.authorizedKeys.keys;
 }
