@@ -42,12 +42,13 @@
 
   users.users.irubachev = {
     isNormalUser = true;
+    extraGroups = ["wheel"];
     shell = pkgs.fish;
     openssh.authorizedKeys.keys = [
       "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBDrz1C/Ra9cRzg2nnZvc5DthwcHPJzUykBCrWtsAO+vwucOKNMu4ONXV8hThvX6h97voLC8XA8rV9Vf9Y2Nd4yU= irubachev@irubachev-osx"
     ];
   };
-
+  security.sudo.wheelNeedsPassword = false;
   users.users.root.openssh.authorizedKeys.keys =
     config.users.users.irubachev.openssh.authorizedKeys.keys;
 }
