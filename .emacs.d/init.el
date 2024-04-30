@@ -11,14 +11,13 @@
 (global-auto-revert-mode 1)
 (savehist-mode 1)
 
-
 (setq user-full-name "Ivan Rubachev")
 (setq user-mail-address "irubachev@gmail.com")
 
 (setq frame-title-format '("%b"))
 (setq frame-resize-pixelwise t)
 (setq ring-bell-function 'ignore)
-
+(setopt fill-column 100)
 
 (setq inhibit-startup-message t)
 (setq sentence-end-double-space nil)
@@ -63,11 +62,9 @@
 ;; use envrc too, TODO work needed here, to manual for now
 ;; check out micromamba.el too
 
-(setenv "PATH" (concat "/Users/irubachev/micromamba/envs/b/bin:" "/Users/irubachev/.nix-profile/bin:" "/nix/var/nix/profiles/default/bin:" (getenv "PATH")))
-(setq exec-path (append '("/Users/irubachev/micromamba/envs/b/bin" "/Users/irubachev/.nix-profile/bin" "/nix/var/nix/profiles/default/bin") exec-path))
-(setq safe-local-variable-values '((eval setenv "PYTHONPATH" "/Users/irubachev/repos/b")))
+(setenv "PATH" (concat "/Users/irubachev/micromamba/envs/tabind/bin:" "/Users/irubachev/.nix-profile/bin:" "/nix/var/nix/profiles/default/bin:" (getenv "PATH")))
+(setq exec-path (append '("/Users/irubachev/micromamba/envs/tabind/bin" "/Users/irubachev/.nix-profile/bin" "/nix/var/nix/profiles/default/bin") exec-path))
 (setq load-path (cons (concat user-emacs-directory "lisp") load-path))
-
 
 (add-hook 'after-save-hook #'executable-make-buffer-file-executable-if-script-p)
 
@@ -82,7 +79,18 @@
 ;; code, python, ignore
 (global-set-key (kbd "C-c p i") 'add-linter-ignore-comment)
 
+;; this is annoying
+(global-unset-key (kbd "C-<wheel-up>"))
+(global-unset-key (kbd "C-<double-wheel-up>"))
+(global-unset-key (kbd "C-<triple-wheel-up>"))
+(global-unset-key (kbd "C-<wheel-down>"))
+(global-unset-key (kbd "C-<double-wheel-down>"))
+(global-unset-key (kbd "C-<triple-wheel-down>"))
+(global-unset-key (kbd "C-<mouse-4>"))
+(global-unset-key (kbd "C-<mouse-5>"))
 
+;; Buffers
+(global-set-key (kbd "C-x C-b") 'ibuffer)
 
 ;; workspaces
 
@@ -180,7 +188,8 @@ point reaches the beginning or end of the buffer, stop there."
       '(embark-highlight-indicator))
 
 ;; consult keybindings
-(global-set-key (kbd "C-x C-g") 'consult-ripgrep)
+(global-set-key (kbd "C-c c g") 'consult-ripgrep)
+(global-set-key (kbd "C-c c f") 'consult-flymake)
 
 (setq corfu-auto t)
 (setq corfu-auto-prefix 2)
@@ -224,18 +233,35 @@ point reaches the beginning or end of the buffer, stop there."
 (global-set-key (kbd "C-h k") #'helpful-key)
 (global-set-key (kbd "C-h x") #'helpful-command)
 
+(which-key-mode)
+
+
+;; add demos to help buffers
+(advice-add 'helpful-update :after #'elisp-demos-advice-helpful-update)
 
 ;; IDE settingsx
 ;; (require 'lsp-pyright)
 ;; (require 'lsp-ruff-lsp)
 
-(add-hook 'python-mode-hook 'lsp)
+(add-hook 'python-mode-hook 'eglot-ensure)
+
+
+(setq flymake-no-changes-timeout 0.0)
+(setq project-vc-ignores
+
+(with-eval-after-load 'eglot
+  ;; Looks like this does not work with stubs, thus pytorch completions don't work for examples -- bad for now. But cool server anyways
+  ;; (add-to-list 'eglot-server-programs '((python-mode python-ts-mode) . ("/Users/irubachev/.nix-profile/bin/pylyzer" "--server")))
+  (eglot-booster-mode)
+)
+
+
 (setopt lsp-pyright-typechecking-mode "basic")
 (setq jupyter-repl-echo-eval-p t)
 (setq native-comp-jit-compilation-deny-list '("jupyter.*.el"))
 
-(with-eval-after-load 'lsp-mode
-  (setq lsp-file-watch-ignored-directories (append lsp-file-watch-ignored-directories '("exp" "data" "cache"))))
+;; (with-eval-after-load 'lsp-mode
+;;   (setq lsp-file-watch-ignored-directories (append lsp-file-watch-ignored-directories '("exp" "data" "cache"))))
 
 
 ;; TODO disable all diagnostics from pyright
@@ -255,7 +281,7 @@ point reaches the beginning or end of the buffer, stop there."
 ;;   )
 
 ;; (setq lsp-ruff-lsp-show-notifications "always")
-(setq lsp-ruff-lsp-ruff-path "/Users/irubachev/.nix-profile/bin/ruff")
+;; (setq lsp-ruff-lsp-ruff-path "/Users/irubachev/.nix-profile/bin/ruff")
 (setq python-indent-def-block-scale 1)
 
 (require 'treesit)
@@ -280,7 +306,7 @@ point reaches the beginning or end of the buffer, stop there."
   (when (string-prefix-p "/Users/irubachev/repos" buffer-file-name)
     (save-window-excursion
       (ignore-errors
-        (async-shell-command "unison mango -ui text -auto -batch")))))
+        (async-shell-command "unison big -ui text -auto -batch")))))
 
 (add-hook 'after-save-hook '+unison-sync)
 (remove-hook 'after-save-hook '+unison-sync)
@@ -329,7 +355,7 @@ point reaches the beginning or end of the buffer, stop there."
 ;; pdftools
 (pdf-loader-install)
 
-(setq-default project-vc-ignores '("./exp"))  ;; for my particular use-case
+(setq-default project-vc-ignores '("**/exp" "exp" "./exp" "./archive"))  ;; for my particular use-case
 
 ;; org-roam
 (setq org-roam-directory (file-truename "~/org"))
@@ -354,8 +380,14 @@ point reaches the beginning or end of the buffer, stop there."
 (defun p-maximize-current-window ()
   "Maximize current window, make it occupy the whole screen"
   (interactive)
-  (let (frame (selected-frame))
-    (set-frame-size frame (display-pixel-width) (display-pixel-height) t)
+  (let ((frame (selected-frame))
+        (pixel-width (display-pixel-width))
+        (pixel-height (display-pixel-height)))
+    (set-frame-size
+     frame
+     (- pixel-width (% pixel-width 5))
+     (- pixel-height (% pixel-height 5))
+     t)
     (set-frame-position frame 0 0)))
 
 (global-set-key (kbd "C-x 5 m") 'p-maximize-current-window)
@@ -388,7 +420,13 @@ point reaches the beginning or end of the buffer, stop there."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(safe-local-variable-values
-   '((eval setenv "PROJECT_DIR" "/Users/irubachev/repos/big")
+   '((eval setenv "PROJECT_DIR" "/Users/irubachev/repos/diff_2")
+     (eval setenv "PYTHONPATH" "/Users/irubachev/repos/diff_2")
+     (eval setenv "PROJECT_DIR" "/Users/irubachev/repos/tabind")
+     (eval setenv "PYTHONPATH" "/Users/irubachev/repos/tabind")
+     (eval setenv "PROJECT_DIR" "/Users/irubachev/repos/ht")
+     (eval setenv "PYTHONPATH" "/Users/irubachev/repos/ht")
+     (eval setenv "PROJECT_DIR" "/Users/irubachev/repos/big")
      (eval setenv "PYTHONPATH" "/Users/irubachev/repos/big")
      (eval setenv "PYTHONPATH" "/Users/irubachev/repos/p"))))
 (custom-set-faces

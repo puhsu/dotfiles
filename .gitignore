@@ -1,4 +1,7 @@
 # elisp ignore
+.emacs.d/multisession
+.emacs.d/url
+.emacs.d/elpa
 .lsp-session-v1
 .org-id-locations
 auto-save-list

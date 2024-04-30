@@ -1,5 +1,5 @@
 
-{ config, pkgs, lib, ... }:
+{config, pkgs, lib, ... }:
 {
   # Home Manager needs a bit of information about you and the paths it should
   # manage.
@@ -8,6 +8,7 @@
   # home.username = (builtins.getEnv "USER");
   # home.homeDirectory = (/. + builtins.getEnv "HOME");
   home.username = "irubachev";
+  
 
   # This value determines the Home Manager release that your configuration is
   # compatible with. This helps avoid breakage when a new Home Manager release
@@ -22,12 +23,19 @@
   # environment.
   home.packages = [
     pkgs.micromamba  # when in teams, hard to work with nix python :tear_emojy:
-    pkgs.unison 
+    # for remote development
+    pkgs.unison
+    pkgs.autossh
     pkgs.jq
+    pkgs.dua  # disk space monitor
+    pkgs.uv
+    
+    pkgs.espeak # for local tts
+    pkgs.cloc # count lines of code
     # TODO add python script file-watcher here (optional: emacs after-save hook)
     pkgs.geckodriver
+    pkgs.git-lfs
     pkgs.typst
-    pkgs.llama-cpp
     pkgs.ollama
     pkgs.tdlib
     pkgs.rustup # TODO only for the unison synchronizer
@@ -41,9 +49,9 @@
     pkgs.wget
     pkgs.yarn
     pkgs.nodePackages.pyright
+    pkgs.emacs-lsp-booster
     pkgs.nodePackages.pnpm
     pkgs.texlive.combined.scheme-minimal
-    pkgs.python311Packages.ruff-lsp
   ];
 
   # I keep emacs dotfiles symlinked to edit .emacs.d and don't have to reload
@@ -63,36 +71,59 @@
 
   programs.emacs = {
     enable = true;
-    package = pkgs.emacs29;
+    package = pkgs.emacs;
     extraPackages = epkgs: [
       epkgs.vertico
       epkgs.orderless
       epkgs.marginalia
       epkgs.consult
       epkgs.embark
+      epkgs.jupyter
       epkgs.embark-consult
+      epkgs.helpful
+      epkgs.elisp-demos
+      epkgs.visual-fill-column
+      epkgs.which-key
       epkgs.wgrep
       epkgs.corfu
       epkgs.cape
       epkgs.magit
-      epkgs.lsp-mode
-      epkgs.lsp-pyright
+
+      # IDE features (eglot for completion and references
       epkgs.eglot
+
+      # This would be obsolete in emacs 30 once faster json parser arive
+      (epkgs.melpaBuild {
+        pname = "eglot-booster";
+        version = "0.0.1";
+        recipe = pkgs.writeText "recipe" ''
+          (eglot-booster
+            :repo "jdtsmith/eglot-booster"
+            :fetcher github)
+        '';
+        commit = "e19dd7ea81bada84c66e8bdd121408d9c0761fe6";
+        src = pkgs.fetchFromGitHub {
+          owner = "jdtsmith";
+          repo = "eglot-booster";
+          rev = "e19dd7ea81bada84c66e8bdd121408d9c0761fe6";
+          sha256 = "sha256-vF34ZoUUj8RENyH9OeKGSPk34G6KXZhEZozQKEcRNhs";
+        };
+        meta = {
+          description = "Eglot Integration with emacs-lsp-booster";
+        };
+      })
       epkgs.gptel
       epkgs.consult-lsp
-      epkgs.jupyter
-      epkgs.flycheck
-      epkgs.gcmh
+      
       epkgs.ctrlf
       epkgs.svg-lib
       epkgs.modus-themes
-      epkgs.nano-modeline
+
       epkgs.nix-mode
       epkgs.org-roam
       epkgs.org-noter
       epkgs.org-pdftools
       epkgs.pdf-tools
-      epkgs.helpful
     ];
   };
 

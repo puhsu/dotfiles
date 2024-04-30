@@ -2,15 +2,22 @@
   description = "PUHSU's Nix Configuration";
 
   inputs = {
-    # Specify the source of Home Manager and Nixpkgs.
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     home-manager = {
       url = "github:nix-community/home-manager/master";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    emacs-lsp-booster.url = "github:slotThe/emacs-lsp-booster-flake";
+
+    # Tried to live with the bleeding edge emacs, not for me right now, encountered
+    # bugs that were annoying and hard to fix
+    # emacs-overlay.url = "github:nix-community/emacs-overlay";
   };
 
-  outputs = { nixpkgs, home-manager, ...}: {
+  outputs = { self, nixpkgs, home-manager, ...}: {
+    
+    # home-manager.useGlobalPkgs = true;
+
     # MacOS Laptop Configurations
     homeConfigurations."mac" = home-manager.lib.homeManagerConfiguration {
       pkgs = nixpkgs.legacyPackages.aarch64-darwin;
@@ -18,6 +25,8 @@
       modules = [ 
         {
           home.homeDirectory = "/Users/irubachev";
+          nixpkgs.overlays = [self.inputs.emacs-lsp-booster.overlays.default];
+          # nixpkgs.overlays = [(import self.inputs.emacs-overlay)];
         }
 	      ./home.nix
 	    ];

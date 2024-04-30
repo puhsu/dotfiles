@@ -35,10 +35,23 @@
   # dummy caddy conifg
   services.caddy = {
     enable = true;
-    virtualHosts."localhost".extraConfig = ''
-      respond "Hello, world!"
+    virtualHosts."puhsu.net".extraConfig = ''
+      root * /var/lib/caddy/puhsu-net/static/
+      file_server browse
+
+      handle_errors {
+        @404 {
+            expression {http.error.status_code} == 404
+        }
+        rewrite @404 /404.html
+        file_server
+      }
     '';
   };
+
+  environment.systemPackages = with pkgs; [
+    xray
+  ];
 
   users.users.irubachev = {
     isNormalUser = true;
@@ -48,6 +61,11 @@
       "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBDrz1C/Ra9cRzg2nnZvc5DthwcHPJzUykBCrWtsAO+vwucOKNMu4ONXV8hThvX6h97voLC8XA8rV9Vf9Y2Nd4yU= irubachev@irubachev-osx"
     ];
   };
+
+  # users.users.proxy = {
+  #   isNormalUser = true;
+  # }
+
   security.sudo.wheelNeedsPassword = false;
   users.users.root.openssh.authorizedKeys.keys =
     config.users.users.irubachev.openssh.authorizedKeys.keys;
