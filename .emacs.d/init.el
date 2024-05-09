@@ -247,7 +247,6 @@ point reaches the beginning or end of the buffer, stop there."
 
 
 (setq flymake-no-changes-timeout 0.0)
-(setq project-vc-ignores
 
 (with-eval-after-load 'eglot
   ;; Looks like this does not work with stubs, thus pytorch completions don't work for examples -- bad for now. But cool server anyways
