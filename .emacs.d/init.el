@@ -32,6 +32,8 @@
   (context-menu-mode))
 
 
+
+
 (setq make-backup-files nil)    ;; stop creating backup~ files
 (setq auto-save-default nil)    ;; stop creating #autosave# files
 (setq create-lockfiles nil)     ;; stop creating .# files
@@ -62,8 +64,8 @@
 ;; use envrc too, TODO work needed here, to manual for now
 ;; check out micromamba.el too
 
-(setenv "PATH" (concat "/Users/irubachev/micromamba/envs/tabind/bin:" "/Users/irubachev/.nix-profile/bin:" "/nix/var/nix/profiles/default/bin:" (getenv "PATH")))
-(setq exec-path (append '("/Users/irubachev/micromamba/envs/tabind/bin" "/Users/irubachev/.nix-profile/bin" "/nix/var/nix/profiles/default/bin") exec-path))
+(setenv "PATH" (concat "/Users/irubachev/micromamba/envs/tabred/bin:" "/Users/irubachev/.nix-profile/bin:" "/nix/var/nix/profiles/default/bin:" (getenv "PATH")))
+(setq exec-path (append '("/Users/irubachev/micromamba/envs/tabred/bin" "/Users/irubachev/.nix-profile/bin" "/nix/var/nix/profiles/default/bin") exec-path))
 (setq load-path (cons (concat user-emacs-directory "lisp") load-path))
 
 (add-hook 'after-save-hook #'executable-make-buffer-file-executable-if-script-p)
@@ -100,6 +102,7 @@
 (setopt display-time-format "%a %F %T")
 (setopt display-time-interval 1)
 (display-time-mode)
+
 
 ;; Window configuration for special windows.
 ;; This section inspired by the article "Demystifying Emacs’s Window
@@ -180,6 +183,11 @@ point reaches the beginning or end of the buffer, stop there."
 (global-corfu-mode 1) ;; in buffer drop-down menu
 (vertico-mode 1)      ;; vertical completion for everything
 (marginalia-mode 1)
+
+
+(with-eval-after-load 'consult 
+  (setq default-consult-ripgrep-args consult-ripgrep-args)
+  (setopt consult-ripgrep-args (string-join (cons "~/.nix-profile/bin/rg" (cdr (string-split default-consult-ripgrep-args " "))) " ")))
 
 ;; embark actions
 (global-set-key (kbd "C-.") 'embark-act)
@@ -301,14 +309,33 @@ point reaches the beginning or end of the buffer, stop there."
 
 (p-setup-install-grammars)
 
+;; Home-backed remote development
+
+;; todo improve this part
+
 (defun +unison-sync ()
   (when (string-prefix-p "/Users/irubachev/repos" buffer-file-name)
     (save-window-excursion
       (ignore-errors
         (async-shell-command "unison big -ui text -auto -batch")))))
 
+(setopt async-shell-command-buffer 'new-buffer)
 (add-hook 'after-save-hook '+unison-sync)
-(remove-hook 'after-save-hook '+unison-sync)
+
+;; this was fun
+(require 'ssh-tunnels)
+
+
+(setq ssh-tunnels-configurations
+      '((:name "zomb-jupyter"
+               :local-port 9999
+               :remote-port 9999
+               :login "3090")
+        (:name "zomb-cv4"
+               :local-port 10000
+               :remote-port 10000
+               :login "zomb-research-cv-4.zombie.yandex.net")))
+
 
 ;; (dolist (mapping '((python-mode . python-ts-mode)
 ;;                    ;; TODO add more grammars
@@ -341,8 +368,8 @@ point reaches the beginning or end of the buffer, stop there."
  :models '("deepseek:latest")
  :stream t)
 
-
-
+;; (setq jupyter--servers nil)
+;; (jupyter-servers)
 
 ;; TODO find a way to use ruff with emacs
 ;;(setq python-flymake-command '("ruff" "--quiet" "--stdin-filename=stdin" "-"))
@@ -384,15 +411,16 @@ point reaches the beginning or end of the buffer, stop there."
         (pixel-height (display-pixel-height)))
     (set-frame-size
      frame
-     (- pixel-width (% pixel-width 5))
-     (- pixel-height (% pixel-height 5))
+     (- pixel-width 4)
+     (- pixel-height 4)
      t)
+    (message "%d" (% pixel-width 6))
     (set-frame-position frame 0 0)))
 
 (global-set-key (kbd "C-x 5 m") 'p-maximize-current-window)
 
 ;; Optimize the agenda setup
-
+(display-pixel-width)
 
 ;; kick-start the above module with this: 
 

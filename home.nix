@@ -32,6 +32,8 @@
     
     pkgs.espeak # for local tts
     pkgs.cloc # count lines of code
+    pkgs.exercism
+    pkgs.eternal-terminal
     # TODO add python script file-watcher here (optional: emacs after-save hook)
     pkgs.geckodriver
     pkgs.git-lfs
@@ -51,7 +53,7 @@
     pkgs.nodePackages.pyright
     pkgs.emacs-lsp-booster
     pkgs.nodePackages.pnpm
-    pkgs.texlive.combined.scheme-minimal
+    pkgs.texliveFull
   ];
 
   # I keep emacs dotfiles symlinked to edit .emacs.d and don't have to reload
@@ -74,9 +76,11 @@
     package = pkgs.emacs;
     extraPackages = epkgs: [
       epkgs.vertico
+      epkgs.eat
       epkgs.orderless
       epkgs.marginalia
       epkgs.consult
+      epkgs.vundo
       epkgs.embark
       epkgs.jupyter
       epkgs.embark-consult
@@ -160,11 +164,14 @@
         set -gx MAMBA_ROOT_PREFIX "${config.home.homeDirectory}/micromamba"
         $MAMBA_EXE shell hook --shell fish --prefix $MAMBA_ROOT_PREFIX | source
         # <<< mamba initialize <<<
+
+        set -gx LANG en_US.UTF-8
+        set -gx LC_ALL en_US.UTF-8
     '';
 
     plugins = [
       # Need this when using Fish as a default macOS shell in order to pick
-      # up ~/.nix-profile/bin
+      # up ~/.nix-profile/bin in PATH
       {
         name = "nix-env";
         src = pkgs.fetchFromGitHub {
