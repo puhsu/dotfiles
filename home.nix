@@ -26,6 +26,7 @@
     # for remote development
     pkgs.unison
     pkgs.autossh
+    pkgs.syncthing
     pkgs.jq
     pkgs.dua  # disk space monitor
     pkgs.uv
@@ -34,11 +35,14 @@
     pkgs.cloc # count lines of code
     pkgs.exercism
     pkgs.eternal-terminal
+    
+    # spell checking lib
+    pkgs.enchant
+
     # TODO add python script file-watcher here (optional: emacs after-save hook)
     pkgs.geckodriver
     pkgs.git-lfs
-    pkgs.typst
-    pkgs.ollama
+    
     pkgs.tdlib
     pkgs.rustup # TODO only for the unison synchronizer
     pkgs.p7zip
@@ -50,10 +54,11 @@
     pkgs.aria
     pkgs.wget
     pkgs.yarn
-    pkgs.nodePackages.pyright
+    pkgs.pyright
     pkgs.emacs-lsp-booster
     pkgs.nodePackages.pnpm
-    pkgs.texliveFull
+    pkgs.texliveMedium
+    pkgs.typst
   ];
 
   # I keep emacs dotfiles symlinked to edit .emacs.d and don't have to reload
@@ -76,7 +81,9 @@
     package = pkgs.emacs;
     extraPackages = epkgs: [
       epkgs.vertico
+      epkgs.dwim-shell-command
       epkgs.eat
+      epkgs.jinx
       epkgs.orderless
       epkgs.marginalia
       epkgs.consult
@@ -92,6 +99,21 @@
       epkgs.corfu
       epkgs.cape
       epkgs.magit
+      epkgs.gptel
+      epkgs.consult-lsp
+
+      epkgs.ctrlf
+      epkgs.svg-lib
+      epkgs.modus-themes
+
+      epkgs.nix-mode
+      epkgs.org-roam
+      epkgs.denote
+      epkgs.dwim-shell-command
+      epkgs.org-noter
+      epkgs.org-pdftools
+      epkgs.pdf-tools
+
 
       # IDE features (eglot for completion and references
       epkgs.eglot
@@ -116,18 +138,6 @@
           description = "Eglot Integration with emacs-lsp-booster";
         };
       })
-      epkgs.gptel
-      epkgs.consult-lsp
-      
-      epkgs.ctrlf
-      epkgs.svg-lib
-      epkgs.modus-themes
-
-      epkgs.nix-mode
-      epkgs.org-roam
-      epkgs.org-noter
-      epkgs.org-pdftools
-      epkgs.pdf-tools
     ];
   };
 

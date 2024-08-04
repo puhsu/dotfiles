@@ -32,8 +32,6 @@
   (context-menu-mode))
 
 
-
-
 (setq make-backup-files nil)    ;; stop creating backup~ files
 (setq auto-save-default nil)    ;; stop creating #autosave# files
 (setq create-lockfiles nil)     ;; stop creating .# files
@@ -262,10 +260,26 @@ point reaches the beginning or end of the buffer, stop there."
   (eglot-booster-mode)
 )
 
+;; Spell checking
+(dolist (hook '(text-mode-hook))
+  (add-hook hook #'jinx-mode))
+
 
 (setopt lsp-pyright-typechecking-mode "basic")
 (setq jupyter-repl-echo-eval-p t)
 (setq native-comp-jit-compilation-deny-list '("jupyter.*.el"))
+
+(advice-remove 'org-babel-do-load-languages #'ignore)
+
+(with-eval-after-load 'org-mode
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((emacs-lisp . t)
+     (julia . t)
+     (python . t)
+     (jupyter . t))))
+
+
 
 ;; (with-eval-after-load 'lsp-mode
 ;;   (setq lsp-file-watch-ignored-directories (append lsp-file-watch-ignored-directories '("exp" "data" "cache"))))
