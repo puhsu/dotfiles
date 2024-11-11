@@ -7,16 +7,23 @@
       url = "github:nix-community/home-manager/master";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    emacs-lsp-booster.url = "github:slotThe/emacs-lsp-booster-flake";
 
     # Tried to live with the bleeding edge emacs, not for me right now, encountered
     # bugs that were annoying and hard to fix
-    # emacs-overlay.url = "github:nix-community/emacs-overlay";
+    emacs-overlay = {
+      url = "github:nix-community/emacs-overlay/master";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    emacs-lsp-booster = {
+      url = "github:slotThe/emacs-lsp-booster-flake";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = { self, nixpkgs, home-manager, ...}: {
     
-    # home-manager.useGlobalPkgs = true;
+    home-manager.useGlobalPkgs = true;
 
     # MacOS Laptop Configurations
     homeConfigurations."mac" = home-manager.lib.homeManagerConfiguration {
@@ -25,8 +32,10 @@
       modules = [ 
         {
           home.homeDirectory = "/Users/irubachev";
-          nixpkgs.overlays = [self.inputs.emacs-lsp-booster.overlays.default];
-          # nixpkgs.overlays = [(import self.inputs.emacs-overlay)];
+          nixpkgs.overlays = [
+            self.inputs.emacs-overlay.overlays.default
+            self.inputs.emacs-lsp-booster.overlays.default 
+          ];
         }
 	      ./home.nix
 	    ];

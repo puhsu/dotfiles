@@ -25,8 +25,8 @@ not retain the generic background set by the function
     (enable-theme theme)))
 
 ;; (setq mode-line-format nil)       
-(set-face-attribute 'default nil :background "#000000" :foreground "#ffffff")
-(set-face-attribute 'mode-line nil :background "#000000" :foreground "#ffffff" :box 'unspecified)
+(set-face-attribute 'default nil :background "#ffffff" :foreground "#000000")
+(set-face-attribute 'mode-line nil :background "#ffffff" :foreground "#000000" :box 'unspecified)
 (add-hook 'after-make-frame-functions #'p-emacs-re-enable-frame-theme)
 
 

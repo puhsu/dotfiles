@@ -162,7 +162,6 @@ point reaches the beginning or end of the buffer, stop there."
 
 ;; UI stuff
 
-(require 'modus-themes)
 
 (add-to-list 'default-frame-alist '(font . "PragmataPro Mono Liga 13"))
 
@@ -174,7 +173,12 @@ point reaches the beginning or end of the buffer, stop there."
   (add-hook (intern (format "%s-hook" mode)) #'p-enable-line-numbers))
 
 (setq display-line-numbers-grow-only t)
-(load-theme 'modus-vivendi :no-confirm)
+
+(require 'modus-themes)
+(load-theme 'modus-operandi :no-confirm)
+
+;; (require 'stimmung-themes)
+;; (stimmung-themes-load-light)
 
 ;; Completion
 
@@ -331,7 +335,7 @@ point reaches the beginning or end of the buffer, stop there."
   (when (string-prefix-p "/Users/irubachev/repos" buffer-file-name)
     (save-window-excursion
       (ignore-errors
-        (async-shell-command "unison big -ui text -auto -batch")))))
+        (async-shell-command "unison big -ui text -auto -batch -silent")))))
 
 (setopt async-shell-command-buffer 'new-buffer)
 (add-hook 'after-save-hook '+unison-sync)
@@ -393,7 +397,7 @@ point reaches the beginning or end of the buffer, stop there."
 ;; (add-hook 'eglot-managed-mode-hook #'p-setup-python-linting)
 
 ;; pdftools
-(pdf-loader-install)
+;; (pdf-loader-install)
 
 (setq-default project-vc-ignores '("**/exp" "exp" "./exp" "./archive"))  ;; for my particular use-case
 
@@ -408,12 +412,11 @@ point reaches the beginning or end of the buffer, stop there."
 
 (with-eval-after-load 'org
   (require 'org-roam-optimize-agenda)
-  (require 'org-noter)
-  (require 'org-pdftools)
-
-  (org-pdftools-setup-link)
-  (add-to-list 'org-modules 'org-tempo t)
-  (org-roam-db-autosync-mode)
+  ;; (require 'org-noter)
+  ;; (require 'org-pdftools)
+  ;; (org-pdftools-setup-link)
+  ;; (add-to-list 'org-modules 'org-tempo t)
+  ;; (org-roam-db-autosync-mode)
   )
 
 

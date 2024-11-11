@@ -1,4 +1,3 @@
-
 {config, pkgs, lib, ... }:
 {
   # Home Manager needs a bit of information about you and the paths it should
@@ -23,9 +22,11 @@
   # environment.
   home.packages = [
     pkgs.micromamba  # when in teams, hard to work with nix python :tear_emojy:
+    pkgs.pixi # mamba extended
+    pkgs.devenv # pixi from the nix world
     # for remote development
     pkgs.unison
-    pkgs.autossh
+    pkgs.mutagen
     pkgs.syncthing
     pkgs.jq
     pkgs.dua  # disk space monitor
@@ -35,6 +36,7 @@
     pkgs.cloc # count lines of code
     pkgs.exercism
     pkgs.eternal-terminal
+    pkgs.jujutsu
     
     # spell checking lib
     pkgs.enchant
@@ -57,7 +59,7 @@
     pkgs.pyright
     pkgs.emacs-lsp-booster
     pkgs.nodePackages.pnpm
-    pkgs.texliveMedium
+    # pkgs.texliveMedium
     pkgs.typst
   ];
 
@@ -78,7 +80,7 @@
 
   programs.emacs = {
     enable = true;
-    package = pkgs.emacs;
+    package = pkgs.emacs-git;
     extraPackages = epkgs: [
       epkgs.vertico
       epkgs.dwim-shell-command
@@ -89,8 +91,8 @@
       epkgs.consult
       epkgs.vundo
       epkgs.embark
-      epkgs.jupyter
       epkgs.embark-consult
+      epkgs.jupyter
       epkgs.helpful
       epkgs.elisp-demos
       epkgs.visual-fill-column
@@ -105,15 +107,15 @@
       epkgs.ctrlf
       epkgs.svg-lib
       epkgs.modus-themes
+      epkgs.stimmung-themes
 
       epkgs.nix-mode
       epkgs.org-roam
       epkgs.denote
       epkgs.dwim-shell-command
-      epkgs.org-noter
-      epkgs.org-pdftools
-      epkgs.pdf-tools
-
+      # epkgs.org-noter
+      # epkgs.org-pdftools
+      # epkgs.pdf-tools
 
       # IDE features (eglot for completion and references
       epkgs.eglot
