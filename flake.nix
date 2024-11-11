@@ -47,6 +47,10 @@
       modules = [ 
         {
           home.homeDirectory = "/home/irubachev";
+          nixpkgs.overlays = [
+            self.inputs.emacs-overlay.overlays.default
+            self.inputs.emacs-lsp-booster.overlays.default 
+          ];
         }
 	      ./home.nix
 	    ];          
