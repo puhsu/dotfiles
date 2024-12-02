@@ -7,7 +7,9 @@
   # home.username = (builtins.getEnv "USER");
   # home.homeDirectory = (/. + builtins.getEnv "HOME");
   home.username = "irubachev";
-  
+  home.sessionPath = [
+    "/Users/irubachev/.local/bin"
+  ];
 
   # This value determines the Home Manager release that your configuration is
   # compatible with. This helps avoid breakage when a new Home Manager release
@@ -24,13 +26,14 @@
     pkgs.micromamba  # when in teams, hard to work with nix python :tear_emojy:
     pkgs.pixi # mamba extended
     pkgs.devenv # pixi from the nix world
+    pkgs.cachix
     # for remote development
     pkgs.unison
     pkgs.mutagen
     pkgs.syncthing
     pkgs.jq
     pkgs.dua  # disk space monitor
-    pkgs.uv
+    # pkgs.uv
     
     pkgs.espeak # for local tts
     pkgs.cloc # count lines of code
@@ -105,6 +108,7 @@
       epkgs.consult-lsp
 
       epkgs.ctrlf
+      epkgs.visual-replace
       epkgs.svg-lib
       epkgs.modus-themes
       epkgs.stimmung-themes

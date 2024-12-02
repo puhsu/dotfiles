@@ -212,6 +212,11 @@ point reaches the beginning or end of the buffer, stop there."
 ;; this is great in buffer search 
 (ctrlf-mode +1)
 
+;; same but for the search and replace in a buffer
+(require 'visual-replace)
+(visual-replace-global-mode 1)
+
+
 ;; TODO What is this?
 
 ;; (defun crm-indicator (args)
@@ -262,7 +267,12 @@ point reaches the beginning or end of the buffer, stop there."
   ;; Looks like this does not work with stubs, thus pytorch completions don't work for examples -- bad for now. But cool server anyways
   ;; (add-to-list 'eglot-server-programs '((python-mode python-ts-mode) . ("/Users/irubachev/.nix-profile/bin/pylyzer" "--server")))
   (eglot-booster-mode)
+  (eglot-inlay-hints-mode -1)
+  (setq eglot-inlay-hints-mode nil)
 )
+
+(add-hook 'eglot-managed-mode-hook (lambda () (eglot-inlay-hints-mode -1)))
+
 
 ;; Spell checking
 (dolist (hook '(text-mode-hook))
@@ -341,7 +351,7 @@ point reaches the beginning or end of the buffer, stop there."
 (add-hook 'after-save-hook '+unison-sync)
 
 ;; this was fun
-(require 'ssh-tunnels)
+;; (require 'ssh-tunnels)
 
 
 (setq ssh-tunnels-configurations
@@ -402,6 +412,7 @@ point reaches the beginning or end of the buffer, stop there."
 (setq-default project-vc-ignores '("**/exp" "exp" "./exp" "./archive"))  ;; for my particular use-case
 
 ;; org-roam
+(setq org-src-preserve-indentation t)
 (setq org-roam-directory (file-truename "~/org"))
 (setq org-return-follows-link t)
 (setq org-startup-folded 'show2levels)
@@ -415,7 +426,7 @@ point reaches the beginning or end of the buffer, stop there."
   ;; (require 'org-noter)
   ;; (require 'org-pdftools)
   ;; (org-pdftools-setup-link)
-  ;; (add-to-list 'org-modules 'org-tempo t)
+  (add-to-list 'org-modules 'org-tempo t)
   ;; (org-roam-db-autosync-mode)
   )
 
@@ -436,11 +447,24 @@ point reaches the beginning or end of the buffer, stop there."
 
 (global-set-key (kbd "C-x 5 m") 'p-maximize-current-window)
 
-;; Optimize the agenda setup
-(display-pixel-width)
+
+(autoload 'zig-mode "zig-mode" nil t)
+(add-to-list 'auto-mode-alist '("\\.zig\\'" . zig-mode))
+
+(if (>= emacs-major-version 28)
+    (add-hook 'compilation-filter-hook 'ansi-color-compilation-filter)
+  (progn
+    (defun colorize-compilation-buffer ()
+      (let ((inhibit-read-only t))
+        (ansi-color-apply-on-region compilation-filter-start (point))))
+    (add-hook 'compilation-filter-hook 'colorize-compilation-buffer)))
+
+;; advent of code
+(require 'aoc-helper)
+
+
 
 ;; kick-start the above module with this: 
-
 ;; (dolist (file (org-roam-list-files))
 ;;   (message "processing %s" file)
 ;;   (with-current-buffer (or (find-buffer-visiting file)

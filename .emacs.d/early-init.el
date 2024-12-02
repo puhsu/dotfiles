@@ -4,15 +4,19 @@
 
 ;; (setq package-enable-at-startup nil) all packages are installed by nix, but autoloads are handled by package.el
 
+(setq debug-on-error t)
+
 (setq inhibit-default-init nil)
 (setq frame-inhibit-implied-resize t)
 
-(add-to-list 'initial-frame-alist '(width . 200))
-(add-to-list 'initial-frame-alist '(height . 100))
+;; (add-to-list 'initial-frame-alist '(width . 200))
+;; (add-to-list 'initial-frame-alist '(height . 70))
 
-(add-to-list 'default-frame-alist '(width . 200))
-(add-to-list 'default-frame-alist '(height . 100))
+;; (add-to-list 'default-frame-alist '(width . 200))
+;; (add-to-list 'default-frame-alist '(height . 30))
 
+(add-to-list 'initial-frame-alist '(fullscreen . maximized))
+(add-to-list 'default-frame-alist '(fullscreen . maximized))
 
 ;; Following snippets are from https://github.com/protesilaos/dotfiles/blob/master/emacs/.emacs.d/early-init.el
 
