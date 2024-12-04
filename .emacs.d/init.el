@@ -62,8 +62,8 @@
 ;; use envrc too, TODO work needed here, to manual for now
 ;; check out micromamba.el too
 
-(setenv "PATH" (concat "/Users/irubachev/micromamba/envs/tabred/bin:" "/Users/irubachev/.nix-profile/bin:" "/nix/var/nix/profiles/default/bin:" (getenv "PATH")))
-(setq exec-path (append '("/Users/irubachev/micromamba/envs/tabred/bin" "/Users/irubachev/.nix-profile/bin" "/nix/var/nix/profiles/default/bin") exec-path))
+(setenv "PATH" (concat "/Users/irubachev/.nix-profile/bin:" "/nix/var/nix/profiles/default/bin:" (getenv "PATH")))
+(setq exec-path (append '("/Users/irubachev/.nix-profile/bin" "/nix/var/nix/profiles/default/bin") exec-path))
 (setq load-path (cons (concat user-emacs-directory "lisp") load-path))
 
 (add-hook 'after-save-hook #'executable-make-buffer-file-executable-if-script-p)
@@ -448,8 +448,8 @@ point reaches the beginning or end of the buffer, stop there."
 (global-set-key (kbd "C-x 5 m") 'p-maximize-current-window)
 
 
-(autoload 'zig-mode "zig-mode" nil t)
-(add-to-list 'auto-mode-alist '("\\.zig\\'" . zig-mode))
+;; (autoload 'zig-mode "zig-mode" nil t)
+;; (add-to-list 'auto-mode-alist '("\\.zig\\'" . zig-mode))
 
 (if (>= emacs-major-version 28)
     (add-hook 'compilation-filter-hook 'ansi-color-compilation-filter)
@@ -476,6 +476,15 @@ point reaches the beginning or end of the buffer, stop there."
 
 ;; Profile emacs startup
 
+;; Dictionary
+
+
+(setopt ;; dictionary-search-interface   'help  ;; THIS does not work for some reason
+        ;; dictionary-default-strategy   "prefix"
+        ;; dictionary-default-dictionary "gcide"
+        dictionary-server             "dict.org")
+
+
 (add-hook 'emacs-startup-hook
           (lambda ()
             (message "Emacs loaded in %s."
@@ -487,16 +496,9 @@ point reaches the beginning or end of the buffer, stop there."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(safe-local-variable-values
-   '((eval setenv "PROJECT_DIR" "/Users/irubachev/repos/diff_2")
-     (eval setenv "PYTHONPATH" "/Users/irubachev/repos/diff_2")
-     (eval setenv "PROJECT_DIR" "/Users/irubachev/repos/tabind")
-     (eval setenv "PYTHONPATH" "/Users/irubachev/repos/tabind")
-     (eval setenv "PROJECT_DIR" "/Users/irubachev/repos/ht")
-     (eval setenv "PYTHONPATH" "/Users/irubachev/repos/ht")
-     (eval setenv "PROJECT_DIR" "/Users/irubachev/repos/big")
-     (eval setenv "PYTHONPATH" "/Users/irubachev/repos/big")
-     (eval setenv "PYTHONPATH" "/Users/irubachev/repos/p"))))
+ '(safe-local-variable-directories
+   '("/Users/irubachev/repos/pretrain/" "/Users/irubachev/repos/")))
+
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

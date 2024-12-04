@@ -27,6 +27,9 @@
     pkgs.pixi # mamba extended
     pkgs.devenv # pixi from the nix world
     pkgs.cachix
+    pkgs.zig
+    pkgs.zls
+
     # for remote development
     pkgs.unison
     pkgs.mutagen
@@ -117,7 +120,7 @@
       epkgs.org-roam
       epkgs.denote
       epkgs.dwim-shell-command
-      # epkgs.org-noter
+      epkgs.nongnuPackages.zig-mode
       # epkgs.org-pdftools
       # epkgs.pdf-tools
 

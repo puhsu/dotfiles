@@ -4,8 +4,6 @@
 
 ;; (setq package-enable-at-startup nil) all packages are installed by nix, but autoloads are handled by package.el
 
-(setq debug-on-error t)
-
 (setq inhibit-default-init nil)
 (setq frame-inhibit-implied-resize t)
 
