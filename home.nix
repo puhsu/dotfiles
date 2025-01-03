@@ -24,21 +24,23 @@
   # environment.
   home.packages = [
     pkgs.micromamba  # when in teams, hard to work with nix python :tear_emojy:
-    pkgs.pixi # mamba extended
-    pkgs.devenv # pixi from the nix world
+    pkgs.uv
+    pkgs.devenv # pixi from the nix world (still no idea why I need this)
     pkgs.cachix
     pkgs.zig
     pkgs.zls
+    
+    pkgs.ncdu
 
     # for remote development
     pkgs.unison
-    pkgs.mutagen
+    pkgs.aerospace
     pkgs.syncthing
+    pkgs.ghostscript
     pkgs.jq
-    pkgs.dua  # disk space monitor
     # pkgs.uv
     
-    pkgs.espeak # for local tts
+    # pkgs.espeak # for local tts
     pkgs.cloc # count lines of code
     pkgs.exercism
     pkgs.eternal-terminal
@@ -63,9 +65,9 @@
     pkgs.wget
     pkgs.yarn
     pkgs.pyright
-    pkgs.emacs-lsp-booster
     pkgs.nodePackages.pnpm
     # pkgs.texliveMedium
+    pkgs.doxygen
     pkgs.typst
   ];
 
@@ -81,6 +83,13 @@
     EDITOR = "emacs";
   };
 
+  programs.ghostty = {
+    package = (pkgs.callPackage ./pkgs/ghostty.nix {});
+    enable = true;
+    enableFishIntegration = true;
+  };
+    
+
   # TODO think about modularizing the config later and loading modules
   # Probably to early for this
 
@@ -89,7 +98,6 @@
     package = pkgs.emacs-git;
     extraPackages = epkgs: [
       epkgs.vertico
-      epkgs.dwim-shell-command
       epkgs.eat
       epkgs.jinx
       epkgs.orderless
@@ -114,46 +122,20 @@
       epkgs.visual-replace
       epkgs.svg-lib
       epkgs.modus-themes
-      epkgs.stimmung-themes
+      epkgs.spacious-padding
 
       epkgs.nix-mode
-      epkgs.org-roam
       epkgs.denote
       epkgs.dwim-shell-command
       epkgs.nongnuPackages.zig-mode
-      # epkgs.org-pdftools
-      # epkgs.pdf-tools
-
-      # IDE features (eglot for completion and references
       epkgs.eglot
-
-      # This would be obsolete in emacs 30 once faster json parser arive
-      (epkgs.melpaBuild {
-        pname = "eglot-booster";
-        version = "0.0.1";
-        recipe = pkgs.writeText "recipe" ''
-          (eglot-booster
-            :repo "jdtsmith/eglot-booster"
-            :fetcher github)
-        '';
-        commit = "e19dd7ea81bada84c66e8bdd121408d9c0761fe6";
-        src = pkgs.fetchFromGitHub {
-          owner = "jdtsmith";
-          repo = "eglot-booster";
-          rev = "e19dd7ea81bada84c66e8bdd121408d9c0761fe6";
-          sha256 = "sha256-vF34ZoUUj8RENyH9OeKGSPk34G6KXZhEZozQKEcRNhs";
-        };
-        meta = {
-          description = "Eglot Integration with emacs-lsp-booster";
-        };
-      })
     ];
   };
 
-  # Do not create symlinks for applications in ~/Applications
-  disabledModules = [ "targets/darwin/linkapps.nix" ];
+  # Manually copy the *.app instead of symlinking them
+  # This is a hack that can actually brake some app's (e.g. the ghostty app)
 
-  # Manually copy the Emacs.app
+  disabledModules = [ "targets/darwin/linkapps.nix" ];
   home.activation = lib.mkIf pkgs.stdenv.isDarwin {
     copyApplications = let
       apps = pkgs.buildEnv {
@@ -167,10 +149,34 @@
         rm -rf "$baseDir"
       fi
       mkdir -p "$baseDir"
-      for appFile in ${apps}/Applications/*; do
+      for appFile in ${apps}/Applications/*.app; do
         target="$baseDir/$(basename "$appFile")"
         $DRY_RUN_CMD cp ''${VERBOSE_ARG:+-v} -fHRL "$appFile" "$baseDir"
         $DRY_RUN_CMD chmod ''${VERBOSE_ARG:+-v} -R +w "$target"
+      done
+
+      # This is restarted
+      for dmgFile in ${apps}/Applications/*.dmg; do
+        target="$baseDir/$(basename "$dmgFile" ".dmg").app"
+        mount_point=$baseDir"/$(basename "$dmgFile" ".dmg")"
+
+        # Attach and extract dmg
+        if [ -n "$VERBOSE_ARG" ]; then
+          $DRY_RUN_CMD /usr/bin/hdiutil attach "$dmgFile" -nobrowse -readonly -mountpoint "$mount_point"
+        else
+          $DRY_RUN_CMD /usr/bin/hdiutil attach "$dmgFile" -nobrowse -readonly -mountpoint "$mount_point" > /dev/null 2>&1
+        fi
+
+        for appFile in "$mount_point"/*.app; do
+          $DRY_RUN_CMD cp ''${VERBOSE_ARG:+-v} -pR "$appFile" "$baseDir"
+        done
+
+        # Detach dmg
+        if [ -n "$VERBOSE_ARG" ]; then
+          $DRY_RUN_CMD /usr/bin/hdiutil detach "$mount_point" -force
+        else
+          $DRY_RUN_CMD /usr/bin/hdiutil detach "$mount_point" -force > /dev/null 2>&1
+        fi
       done
     '';
   };

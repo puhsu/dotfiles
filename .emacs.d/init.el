@@ -38,6 +38,7 @@
 (setq require-final-newline t)
  
 (setq dired-auto-revert-buffer t)
+(setq dired-dwim-target t)
 (setq find-file-visit-truename t)
 (setq global-auto-revert-non-file-buffers t)
 (setq bookmark-save-flag 1) ;; TODO - readup on bookmarks
@@ -177,6 +178,26 @@ point reaches the beginning or end of the buffer, stop there."
 (require 'modus-themes)
 (load-theme 'modus-operandi :no-confirm)
 
+(require 'spacious-padding)
+
+;; These are the default values, but I keep them here for visibility.
+(setq spacious-padding-widths
+      '( :internal-border-width 15
+         :header-line-width 4
+         :mode-line-width 6
+         :tab-width 4
+         :right-divider-width 30
+         :scroll-bar-width 8
+         :fringe-width 8))
+
+;; Read the doc string of `spacious-padding-subtle-mode-line' as it
+;; is very flexible and provides several examples.
+(setq spacious-padding-subtle-mode-line
+      `( :mode-line-active 'default
+         :mode-line-inactive vertical-border))
+
+(spacious-padding-mode 1)
+
 ;; (require 'stimmung-themes)
 ;; (stimmung-themes-load-light)
 
@@ -204,6 +225,10 @@ point reaches the beginning or end of the buffer, stop there."
 (setq corfu-auto t)
 (setq corfu-auto-prefix 2)
 (setq corfu-auto-delay 0.1)
+;; (setq corfu-quit-at-boundary t)
+;; (setq corfu-quit-no-match t)
+;; (setq corfu-preselect 'prompt)
+
 
 (setq vertico-resize nil)
 (setq vertico-cycle t)
@@ -259,19 +284,33 @@ point reaches the beginning or end of the buffer, stop there."
 ;; (require 'lsp-ruff-lsp)
 
 (add-hook 'python-mode-hook 'eglot-ensure)
+(add-hook 'zig-mode-hook 'eglot-ensure)
 
+;; (advice-add 'eldoc--echo-area-render :override
+;;             (lambda    (docs)
+;;               "Similar to `eldoc--format-doc-buffer', but for echo area.
+;; Helper for `eldoc-display-in-echo-area'."
+;;               (cl-loop for (item . rest) on docs
+;;                        for (this-doc . plist) = item
+;;                        for echo = (plist-get plist :echo)
+;;                        for thing = (plist-get plist :thing)
+;;                        unless (eq echo 'skip) do
+;;                        (setq this-doc
+;;                              (cond ((integerp echo) this-doc)
+;;                                    ((stringp echo) echo)
+;;                                    (t this-doc)))
+;;                        (when thing (setq this-doc
+;;                                          (concat
+;;                                           (propertize (format "%s" thing)
+;;                                                       'face (plist-get plist :face))
+;;                                           ": "
+;;                                           this-doc)))
+;;                        (insert this-doc)
+;;                        (when rest (insert "\n")))))
 
 (setq flymake-no-changes-timeout 0.0)
 
-(with-eval-after-load 'eglot
-  ;; Looks like this does not work with stubs, thus pytorch completions don't work for examples -- bad for now. But cool server anyways
-  ;; (add-to-list 'eglot-server-programs '((python-mode python-ts-mode) . ("/Users/irubachev/.nix-profile/bin/pylyzer" "--server")))
-  (eglot-booster-mode)
-  (eglot-inlay-hints-mode -1)
-  (setq eglot-inlay-hints-mode nil)
-)
-
-(add-hook 'eglot-managed-mode-hook (lambda () (eglot-inlay-hints-mode -1)))
+;; (add-hook 'eglot-managed-mode-hook (lambda () (eglot-inlay-hints-mode -1)))
 
 
 ;; Spell checking
@@ -497,7 +536,9 @@ point reaches the beginning or end of the buffer, stop there."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(safe-local-variable-directories
-   '("/Users/irubachev/repos/pretrain/" "/Users/irubachev/repos/")))
+   '("/Users/irubachev/repos/random-coffee-bot/" "/Users/irubachev/repos/gptel-test/"
+     "/Users/irubachev/repos/velo-pytorch/" "/Users/irubachev/repos/tabular-dl-tabred/"
+     "/Users/irubachev/repos/pretrain/" "/Users/irubachev/repos/")))
 
 (custom-set-faces
  ;; custom-set-faces was added by Custom.

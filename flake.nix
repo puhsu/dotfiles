@@ -2,7 +2,7 @@
   description = "PUHSU's Nix Configuration";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
     home-manager = {
       url = "github:nix-community/home-manager/master";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -12,11 +12,6 @@
     # bugs that were annoying and hard to fix
     emacs-overlay = {
       url = "github:nix-community/emacs-overlay/master";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    emacs-lsp-booster = {
-      url = "github:slotThe/emacs-lsp-booster-flake";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
@@ -34,7 +29,6 @@
           home.homeDirectory = "/Users/irubachev";
           nixpkgs.overlays = [
             self.inputs.emacs-overlay.overlays.default
-            self.inputs.emacs-lsp-booster.overlays.default 
           ];
         }
 	      ./home.nix
@@ -49,7 +43,6 @@
           home.homeDirectory = "/home/irubachev";
           nixpkgs.overlays = [
             self.inputs.emacs-overlay.overlays.default
-            self.inputs.emacs-lsp-booster.overlays.default 
           ];
         }
 	      ./home.nix
