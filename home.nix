@@ -7,9 +7,6 @@
   # home.username = (builtins.getEnv "USER");
   # home.homeDirectory = (/. + builtins.getEnv "HOME");
   home.username = "irubachev";
-  home.sessionPath = [
-    "/Users/irubachev/.local/bin"
-  ];
 
   # This value determines the Home Manager release that your configuration is
   # compatible with. This helps avoid breakage when a new Home Manager release
@@ -34,7 +31,6 @@
 
     # for remote development
     pkgs.unison
-    pkgs.aerospace
     pkgs.syncthing
     pkgs.ghostscript
     pkgs.jq
@@ -69,6 +65,8 @@
     # pkgs.texliveMedium
     pkgs.doxygen
     pkgs.typst
+  ] ++ lib.optionals pkgs.stdenv.isDarwin [
+    pkgs.aerospace
   ];
 
   # I keep emacs dotfiles symlinked to edit .emacs.d and don't have to reload
@@ -83,10 +81,24 @@
     EDITOR = "emacs";
   };
 
-  programs.ghostty = {
+  programs.ghostty = pkgs.lib.mkIf pkgs.stdenv.isDarwin {
     package = (pkgs.callPackage ./pkgs/ghostty.nix {});
     enable = true;
-    enableFishIntegration = true;
+
+    settings = {
+      command = (lib.getExe pkgs.fish);
+      theme = "BlulocoLight";
+      
+      font-family = "PragmataPro Mono Liga";
+      cursor-style = "block";
+      scrollback-limit = 2 * 1024 * 1024 * 1024; # 2GB 
+      title = " ";
+      shell-integration = "fish";
+      copy-on-select = true;
+      macos-option-as-alt = true;
+      macos-titlebar-style = "tabs";
+      macos-icon = "custom-style";
+    };
   };
     
 
@@ -117,7 +129,6 @@
       epkgs.magit
       epkgs.gptel
       epkgs.consult-lsp
-
       epkgs.ctrlf
       epkgs.visual-replace
       epkgs.svg-lib
@@ -129,6 +140,25 @@
       epkgs.dwim-shell-command
       epkgs.nongnuPackages.zig-mode
       epkgs.eglot
+
+      # todo: learn how to move this stuff to modules
+      (epkgs.melpaBuild {
+        pname = "inline-diff";
+        version = "0.0.1";
+        recipe = pkgs.writeText "recipe" ''
+          (inline-diff
+            :url "https://code.tecosaur.net/tec/inline-diff.git"
+            :fetcher git)
+        '';
+        commit = "5ee85842d230d07b31413ddf0ec610b306f1be37";
+        src = builtins.fetchGit {
+          url = "https://code.tecosaur.net/tec/inline-diff.git";
+          rev = "5ee85842d230d07b31413ddf0ec610b306f1be37";          
+        };
+        meta = {
+          description = "Diff in-place";
+        };
+      })
     ];
   };
 
@@ -155,7 +185,7 @@
         $DRY_RUN_CMD chmod ''${VERBOSE_ARG:+-v} -R +w "$target"
       done
 
-      # This is restarted
+      # This is restarted (wait till ghostty comes around o
       for dmgFile in ${apps}/Applications/*.dmg; do
         target="$baseDir/$(basename "$dmgFile" ".dmg").app"
         mount_point=$baseDir"/$(basename "$dmgFile" ".dmg")"
@@ -192,6 +222,9 @@
 
         set -gx LANG en_US.UTF-8
         set -gx LC_ALL en_US.UTF-8
+
+        # disable hello from fish
+        set fish_greeting
     '';
 
     plugins = [
