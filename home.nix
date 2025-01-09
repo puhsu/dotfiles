@@ -159,6 +159,27 @@
           description = "Diff in-place";
         };
       })
+
+      (epkgs.melpaBuild {
+        pname = "ultra-scroll";
+        version = "0.0.1";
+        recipe = pkgs.writeText "recipe" ''
+          (ultra-scroll
+            :repo "jdtsmith/ultra-scroll"
+            :fetcher github)
+        '';
+        commit = "e89d15e18549bc6b3c41f21c3cf5082b04fea303";
+        src = pkgs.fetchFromGitHub {
+          owner = "jdtsmith";
+          repo = "ultra-scroll";
+          rev = "e89d15e18549bc6b3c41f21c3cf5082b04fea303";
+          sha256 = "sha256-XRaBUu1kJbuqkyhiyko22c+ZORCLu5zvAazrVeM51eY=";
+        };
+        meta = {
+          description = "Scroll emacs like lightning";
+        };
+      })
+
     ];
   };
 

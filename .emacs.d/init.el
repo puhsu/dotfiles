@@ -50,13 +50,10 @@
 ;; TODO investigate further but good enough for now
 (set-display-table-slot standard-display-table 'truncation 32)
 
-(pixel-scroll-precision-mode)
-(setq pixel-scroll-precision-large-scroll-height 20.0)
-(setq pixel-scroll-precision-use-momentum t)
 (setq scroll-conservatively 101)
 (setq scroll-margin 0)
 (setq scroll-preserve-screen-position t)
-(setq fast-but-imprecise-scrolling t)
+(ultra-scroll-mode 1)
 
 ;; fixup the PATH environment variableTODO (make it load a file
 ;; instead, link with home-manager somehow)
