@@ -127,6 +127,7 @@
       epkgs.corfu
       epkgs.cape
       epkgs.magit
+      epkgs.no-littering
       epkgs.gptel
       epkgs.consult-lsp
       epkgs.ctrlf

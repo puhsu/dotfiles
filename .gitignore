@@ -4,6 +4,9 @@
 .emacs.d/elpa
 .lsp-session-v1
 .org-id-locations
+etc
+var
+phsu-secrets.el
 auto-save-list
 bookmarks
 eln-cache

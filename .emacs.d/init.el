@@ -17,7 +17,7 @@
 (setq frame-title-format '("%b"))
 (setq frame-resize-pixelwise t)
 (setq ring-bell-function 'ignore)
-(setopt fill-column 100)
+
 
 (setq inhibit-startup-message t)
 (setq sentence-end-double-space nil)
@@ -53,6 +53,9 @@
 (setq scroll-conservatively 101)
 (setq scroll-margin 0)
 (setq scroll-preserve-screen-position t)
+(setq pixel-scroll-precision-use-momentum t)
+(setq pixel-scroll-precision-momentum-min-velocity 1)
+(setq pixel-scroll-precision-momentum-seconds 1000)
 (ultra-scroll-mode 1)
 
 ;; fixup the PATH environment variableTODO (make it load a file
@@ -195,8 +198,17 @@ point reaches the beginning or end of the buffer, stop there."
 
 (spacious-padding-mode 1)
 
-;; (require 'stimmung-themes)
-;; (stimmung-themes-load-light)
+;; Cleaner .emacs.d
+
+(require 'no-littering)
+
+(when (and (fboundp 'startup-redirect-eln-cache)
+           (fboundp 'native-comp-available-p)
+           (native-comp-available-p))
+  (startup-redirect-eln-cache
+   (convert-standard-filename
+    (expand-file-name  "var/eln-cache/" user-emacs-directory))))
+
 
 ;; Completion
 
@@ -386,51 +398,49 @@ point reaches the beginning or end of the buffer, stop there."
 (setopt async-shell-command-buffer 'new-buffer)
 (add-hook 'after-save-hook '+unison-sync)
 
-;; this was fun
-;; (require 'ssh-tunnels)
-
-
-(setq ssh-tunnels-configurations
-      '((:name "zomb-jupyter"
-               :local-port 9999
-               :remote-port 9999
-               :login "3090")
-        (:name "zomb-cv4"
-               :local-port 10000
-               :remote-port 10000
-               :login "zomb-research-cv-4.zombie.yandex.net")))
-
-
-;; (dolist (mapping '((python-mode . python-ts-mode)
-;;                    ;; TODO add more grammars
-;;                    ))
-;;   (add-to-list 'major-mode-remap-alist mapping))
-
-
-
-
-
-;; Optional, but recommended. Tree-sitter enabled major modes are
-;; distinct from their ordinary counterparts.
-;;
-;; You can remap major modes with `major-mode-remap-alist'. Note
-;; that this does *not* extend to hooks! Make sure you migrate them
-;; also
-
-
 ;; AI
+;; gptel
 
-(gptel-make-ollama
- "hermes-7b-q5"
- :host "localhost:11434"
- :models '("hermes:latest")
- :stream t)
+(require 'gptel)
+(require 'gptel-rewrite)
+(require 'phsu-secrets)
 
-(gptel-make-ollama
- "deepseek-7b-q5"
- :host "localhost:11434"
- :models '("deepseek:latest")
- :stream t)
+
+(setq gptel-deepseek-backend
+      (apply #'gptel-make-openai "deepseek"
+             (plist-get gptel-backend-configs :deepseek)))
+
+(setq gptel-anthropic-backend
+      (apply #'gptel-make-anthropic "anthropic"
+             (plist-get gptel-backend-configs :anthropic)))
+
+(setq gptel-backend gptel-anthropic-backend)
+(setq gptel-model 'claude-3-5-sonnet-20241022)
+
+(add-hook 'gptel-post-response-functions 'gptel-end-of-response)
+
+(defun gptel--rewrite-inline-diff (&optional ovs)
+  "Start an inline-diff session on OVS."
+  (interactive (list (gptel--rewrite-overlay-at)))
+  (unless (require 'inline-diff nil t)
+    (user-error "Inline diffs require the inline-diff package."))
+  (when-let* ((ov-buf (overlay-buffer (or (car-safe ovs) ovs)))
+              ((buffer-live-p ov-buf)))
+    (with-current-buffer ov-buf
+      (cl-loop for ov in (ensure-list ovs)
+               for ov-beg = (overlay-start ov)
+               for ov-end = (overlay-end ov)
+               for response = (overlay-get ov 'gptel-rewrite)
+               do (delete-overlay ov)
+               (inline-diff-words
+                ov-beg ov-end response)))))
+
+(when (boundp 'gptel--rewrite-dispatch-actions)
+  (add-to-list
+   'gptel--rewrite-dispatch-actions '(?i "inline-diff")
+   'append))
+
+(define-key gptel-rewrite-actions-map (kbd "C-c C-i") 'gptel--rewrite-inline-diff)
 
 ;; (setq jupyter--servers nil)
 ;; (jupyter-servers)
@@ -442,29 +452,68 @@ point reaches the beginning or end of the buffer, stop there."
 ;;   (add-hook 'flymake-diagnostic-functions 'python-flymake))
 ;; (add-hook 'eglot-managed-mode-hook #'p-setup-python-linting)
 
-;; pdftools
-;; (pdf-loader-install)
 
 (setq-default project-vc-ignores '("**/exp" "exp" "./exp" "./archive"))  ;; for my particular use-case
 
-;; org-roam
+;; org-mode and text mode tweaks
+
+(setopt fill-column 120)
+(add-hook 'text-mode-hook 'visual-line-mode)
+(add-hook 'text-mode-hook 'visual-fill-column-mode)
+
+;; denote 
+(require 'denote)
+(setq denote-directory (expand-file-name "~/org"))
+(setq denote-save-buffers t)
+
+;; temporary for migratin org-roam files to denote
+(defun phsu-roam-to-denote ()
+  "Migrate current org file to denote format.
+Works on demand for any org file, extracting title and tags from its contents."
+  (interactive)
+  (when buffer-file-name
+    (let* ((title (or (org-get-title)
+                      (file-name-base buffer-file-name)))
+           (filetags (org-get-filetags))
+           (denote-rename-no-confirm t))
+      (when (yes-or-no-p 
+             (format "Migrate '%s' to denote format?" title))
+        ;; Remove PROPERTIES drawer
+        (org-with-wide-buffer
+         (goto-char (point-min))
+         (when (re-search-forward ":PROPERTIES:\n\\([^\0]*?\\):END:\n" nil t)
+           (replace-match "")))
+        (save-buffer)
+        (denote-rename-file buffer-file-name title filetags)))))
+
+(defun org-get-title ()
+  "Get the title from current org file."
+  (org-element-map (org-element-parse-buffer) 'keyword
+    (lambda (kw)
+      (when (string= (org-element-property :key kw) "TITLE")
+        (org-element-property :value kw)))
+    nil t))
+
+(defun org-get-filetags ()
+  "Get FILETAGS from current org file."
+  (let ((filetags (org-element-map (org-element-parse-buffer) 'keyword
+                   (lambda (kw)
+                     (when (string= (org-element-property :key kw) "FILETAGS")
+                       (org-element-property :value kw)))
+                   nil t)))
+    (when filetags
+      (split-string (replace-regexp-in-string "[:]+" " " filetags) " " t))))
+
 (setq org-src-preserve-indentation t)
-(setq org-roam-directory (file-truename "~/org"))
 (setq org-return-follows-link t)
 (setq org-startup-folded 'show2levels)
 (setq org-todo-keywords
       '((sequence "TODO(t)" "WAIT(w)" "|" "DONE(d)")
         (sequence "|" "CANCELED(c)")))
 
-
 (with-eval-after-load 'org
-  (require 'org-roam-optimize-agenda)
-  ;; (require 'org-noter)
-  ;; (require 'org-pdftools)
-  ;; (org-pdftools-setup-link)
-  (add-to-list 'org-modules 'org-tempo t)
-  ;; (org-roam-db-autosync-mode)
-  )
+  (require 'optimize-agenda)
+  (add-to-list 'org-modules 'org-tempo t))
 
 
 (defun p-maximize-current-window ()
@@ -495,32 +544,16 @@ point reaches the beginning or end of the buffer, stop there."
         (ansi-color-apply-on-region compilation-filter-start (point))))
     (add-hook 'compilation-filter-hook 'colorize-compilation-buffer)))
 
-;; advent of code
-(require 'aoc-helper)
 
-
-
-;; kick-start the above module with this: 
-;; (dolist (file (org-roam-list-files))
-;;   (message "processing %s" file)
-;;   (with-current-buffer (or (find-buffer-visiting file)
-;;                            (find-file-noselect file))
-;;     (vulpea-project-update-tag)
-;;     (save-buffer)))
-
-;; TODOs, see the emacs-configuration.org for tasks
-
-;; Profile emacs startup
 
 ;; Dictionary
-
-
 (setopt ;; dictionary-search-interface   'help  ;; THIS does not work for some reason
         ;; dictionary-default-strategy   "prefix"
         ;; dictionary-default-dictionary "gcide"
         dictionary-server             "dict.org")
 
 
+;; Profile emacs startup
 (add-hook 'emacs-startup-hook
           (lambda ()
             (message "Emacs loaded in %s."
@@ -532,8 +565,10 @@ point reaches the beginning or end of the buffer, stop there."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(org-agenda-files
+   '("/Users/irubachev/org/20250112T125748--tasks__project.org"))
  '(safe-local-variable-directories
-   '("/Users/irubachev/repos/random-coffee-bot/" "/Users/irubachev/repos/gptel-test/"
+   '("/Users/irubachev/junk/test-gptel/" "/Users/irubachev/repos/random-coffee-bot/" "/Users/irubachev/repos/gptel-test/"
      "/Users/irubachev/repos/velo-pytorch/" "/Users/irubachev/repos/tabular-dl-tabred/"
      "/Users/irubachev/repos/pretrain/" "/Users/irubachev/repos/")))
 
@@ -542,4 +577,21 @@ point reaches the beginning or end of the buffer, stop there."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- )
+ '(fringe ((t :background "#ffffff")))
+ '(header-line ((t :box (:line-width 4 :color "#f2f2f2" :style nil))))
+ '(header-line-highlight ((t :box (:color "#000000"))))
+ '(keycast-key ((t)))
+ '(line-number ((t :background "#ffffff")))
+ '(mode-line ((t :background "#ffffff" :overline "#000000" :box (:line-width 6 :color "#ffffff" :style nil))))
+ '(mode-line-active ((t :background "#ffffff" :overline "#000000" :box (:line-width 6 :color "#ffffff" :style nil))))
+ '(mode-line-highlight ((t :box (:color "#000000"))))
+ '(mode-line-inactive ((t :background "#ffffff" :overline "#9f9f9f" :box (:line-width 6 :color "#ffffff" :style nil))))
+ '(tab-bar-tab ((t :box (:line-width 4 :color "#ffffff" :style nil))))
+ '(tab-bar-tab-inactive ((t :box (:line-width 4 :color "#c2c2c2" :style nil))))
+ '(tab-line-tab ((t)))
+ '(tab-line-tab-active ((t)))
+ '(tab-line-tab-inactive ((t)))
+ '(vertical-border ((t :background "#ffffff" :foreground "#ffffff")))
+ '(window-divider ((t (:background "#ffffff" :foreground "#ffffff"))))
+ '(window-divider-first-pixel ((t (:background "#ffffff" :foreground "#ffffff"))))
+ '(window-divider-last-pixel ((t (:background "#ffffff" :foreground "#ffffff")))))
