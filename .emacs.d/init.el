@@ -519,15 +519,8 @@ Works on demand for any org file, extracting title and tags from its contents."
 (defun p-maximize-current-window ()
   "Maximize current window, make it occupy the whole screen"
   (interactive)
-  (let ((frame (selected-frame))
-        (pixel-width (display-pixel-width))
-        (pixel-height (display-pixel-height)))
-    (set-frame-size
-     frame
-     (- pixel-width 4)
-     (- pixel-height 4)
-     t)
-    (message "%d" (% pixel-width 6))
+  (let ((frame (selected-frame)))
+    (set-frame-parameter frame 'fullscreen 'maximized)
     (set-frame-position frame 0 0)))
 
 (global-set-key (kbd "C-x 5 m") 'p-maximize-current-window)
