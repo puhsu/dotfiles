@@ -6,6 +6,7 @@
   # This is in flake.nix for now, TODO, find a cleaner way to share the same home.nix between different machines and users
   # home.username = (builtins.getEnv "USER");
   # home.homeDirectory = (/. + builtins.getEnv "HOME");
+  home.homeDirectory = "/Users/irubachev";
   home.username = "irubachev";
 
   # This value determines the Home Manager release that your configuration is
@@ -34,7 +35,6 @@
     pkgs.syncthing
     pkgs.ghostscript
     pkgs.jq
-    # pkgs.uv
     
     # pkgs.espeak # for local tts
     pkgs.cloc # count lines of code
@@ -44,6 +44,7 @@
     
     # spell checking lib
     pkgs.enchant
+    pkgs.imagemagick
 
     # TODO add python script file-watcher here (optional: emacs after-save hook)
     pkgs.geckodriver
@@ -82,7 +83,8 @@
   };
 
   programs.ghostty = pkgs.lib.mkIf pkgs.stdenv.isDarwin {
-    package = (pkgs.callPackage ./pkgs/ghostty.nix {});
+    # package = (pkgs.callPackage ./pkgs/ghostty.nix {});
+    package = null;
     enable = true;
 
     settings = {
@@ -94,7 +96,7 @@
       scrollback-limit = 2 * 1024 * 1024 * 1024; # 2GB 
       title = " ";
       shell-integration = "fish";
-      copy-on-select = true;
+      copy-on-select = "clipboard";
       macos-option-as-alt = true;
       macos-titlebar-style = "tabs";
       macos-icon = "custom-style";
@@ -141,6 +143,7 @@
       epkgs.dwim-shell-command
       epkgs.nongnuPackages.zig-mode
       epkgs.eglot
+      epkgs.dape
 
       # todo: learn how to move this stuff to modules
       (epkgs.melpaBuild {
@@ -205,30 +208,6 @@
         target="$baseDir/$(basename "$appFile")"
         $DRY_RUN_CMD cp ''${VERBOSE_ARG:+-v} -fHRL "$appFile" "$baseDir"
         $DRY_RUN_CMD chmod ''${VERBOSE_ARG:+-v} -R +w "$target"
-      done
-
-      # This is restarted (wait till ghostty comes around o
-      for dmgFile in ${apps}/Applications/*.dmg; do
-        target="$baseDir/$(basename "$dmgFile" ".dmg").app"
-        mount_point=$baseDir"/$(basename "$dmgFile" ".dmg")"
-
-        # Attach and extract dmg
-        if [ -n "$VERBOSE_ARG" ]; then
-          $DRY_RUN_CMD /usr/bin/hdiutil attach "$dmgFile" -nobrowse -readonly -mountpoint "$mount_point"
-        else
-          $DRY_RUN_CMD /usr/bin/hdiutil attach "$dmgFile" -nobrowse -readonly -mountpoint "$mount_point" > /dev/null 2>&1
-        fi
-
-        for appFile in "$mount_point"/*.app; do
-          $DRY_RUN_CMD cp ''${VERBOSE_ARG:+-v} -pR "$appFile" "$baseDir"
-        done
-
-        # Detach dmg
-        if [ -n "$VERBOSE_ARG" ]; then
-          $DRY_RUN_CMD /usr/bin/hdiutil detach "$mount_point" -force
-        else
-          $DRY_RUN_CMD /usr/bin/hdiutil detach "$mount_point" -force > /dev/null 2>&1
-        fi
       done
     '';
   };

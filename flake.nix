@@ -2,7 +2,13 @@
   description = "PUHSU's Nix Configuration";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
+    # nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
+    nixpkgs.url = "github:nixos/nixpkgs/7ad7702fa8b0d409aaf83eba8be1479b97823cdc";
+
+    nix-darwin = {
+      url = "github:LnL7/nix-darwin/master";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     home-manager = {
       url = "github:nix-community/home-manager/master";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -16,9 +22,52 @@
     };
   };
 
-  outputs = { self, nixpkgs, home-manager, ...}: {
-    
-    home-manager.useGlobalPkgs = true;
+  outputs = { self, nixpkgs, nix-darwin, home-manager, ...}: {
+
+    darwinConfigurations."irubachev-osx" = nix-darwin.lib.darwinSystem {
+      system = "aarch64-darwin";
+      modules = [
+        {
+          users.users.irubachev.home = "/Users/irubachev";
+          nix.settings = {
+            experimental-features = "nix-command flakes";
+            substituters = [
+              "https://cache.nixos.org"
+              "https://nix-community.cachix.org"
+              "https://devenv.cachix.org"
+            ];
+            trusted-public-keys = [
+              "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
+              "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
+              "devenv.cachix.org-1:w1cLUi8dv3hnoSPGAuibQv+f9TZLr6cv/Hm9XgU50cw="
+            ];
+          };
+
+          system.stateVersion = 6;
+        }
+        home-manager.darwinModules.home-manager
+        {
+          nixpkgs.overlays = [
+            self.inputs.emacs-overlay.overlays.default
+          ];
+          home-manager.useGlobalPkgs = true;
+          home-manager.users."irubachev" = import ./home.nix;
+        }
+        {
+          programs.fish.enable = true;
+        }
+        {
+          homebrew = {
+            enable = true;
+            casks = [
+              "ghostty"
+              "firefox"
+              "telegram"
+            ];
+          };
+        }
+      ];
+    };
 
     # MacOS Laptop Configurations
     homeConfigurations."mac" = home-manager.lib.homeManagerConfiguration {
