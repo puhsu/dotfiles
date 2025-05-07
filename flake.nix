@@ -2,8 +2,8 @@
   description = "PUHSU's Nix Configuration";
 
   inputs = {
-    # nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
-    nixpkgs.url = "github:nixos/nixpkgs/7ad7702fa8b0d409aaf83eba8be1479b97823cdc";
+    nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
+    # nixpkgs.url = "github:nixos/nixpkgs/7ad7702fa8b0d409aaf83eba8be1479b97823cdc";
 
     nix-darwin = {
       url = "github:LnL7/nix-darwin/master";
@@ -29,6 +29,7 @@
       modules = [
         {
           users.users.irubachev.home = "/Users/irubachev";
+          ids.gids.nixbld = 30000;
           nix.settings = {
             experimental-features = "nix-command flakes";
             substituters = [

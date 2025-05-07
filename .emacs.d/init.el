@@ -164,7 +164,7 @@ point reaches the beginning or end of the buffer, stop there."
 ;; UI stuff
 
 
-(add-to-list 'default-frame-alist '(font . "PragmataPro Mono Liga 13"))
+(add-to-list 'default-frame-alist '(font . "PragmataPro Mono Liga 14"))
 
 (defun p-enable-line-numbers ()
   "Wrapper around display-line-numbers-mode that disables line numbers"
@@ -295,29 +295,11 @@ point reaches the beginning or end of the buffer, stop there."
 (add-hook 'python-mode-hook 'eglot-ensure)
 (add-hook 'zig-mode-hook 'eglot-ensure)
 
-;; (advice-add 'eldoc--echo-area-render :override
-;;             (lambda    (docs)
-;;               "Similar to `eldoc--format-doc-buffer', but for echo area.
-;; Helper for `eldoc-display-in-echo-area'."
-;;               (cl-loop for (item . rest) on docs
-;;                        for (this-doc . plist) = item
-;;                        for echo = (plist-get plist :echo)
-;;                        for thing = (plist-get plist :thing)
-;;                        unless (eq echo 'skip) do
-;;                        (setq this-doc
-;;                              (cond ((integerp echo) this-doc)
-;;                                    ((stringp echo) echo)
-;;                                    (t this-doc)))
-;;                        (when thing (setq this-doc
-;;                                          (concat
-;;                                           (propertize (format "%s" thing)
-;;                                                       'face (plist-get plist :face))
-;;                                           ": "
-;;                                           this-doc)))
-;;                        (insert this-doc)
-;;                        (when rest (insert "\n")))))
-
 (setq flymake-no-changes-timeout 0.0)
+
+;; Code Formatters
+
+(add-hook 'python-mode-hook 'ruff-format-on-save-mode)
 
 ;; (add-hook 'eglot-managed-mode-hook (lambda () (eglot-inlay-hints-mode -1)))
 
@@ -340,6 +322,9 @@ point reaches the beginning or end of the buffer, stop there."
      (julia . t)
      (python . t)
      (jupyter . t))))
+
+;; "expert" means no special window will be shown, instead options are in the prompt
+(setq org-use-fast-todo-selection 'expert)
 
 
 
@@ -389,6 +374,9 @@ point reaches the beginning or end of the buffer, stop there."
 
 ;; todo improve this part
 
+
+(setopt vterm-shell "/Users/irubachev/.nix-profile/bin/fish")
+
 (defun +unison-sync ()
   (when (string-prefix-p "/Users/irubachev/repos" buffer-file-name)
     (save-window-excursion
@@ -398,6 +386,29 @@ point reaches the beginning or end of the buffer, stop there."
 (setopt async-shell-command-buffer 'new-buffer)
 (add-hook 'after-save-hook '+unison-sync)
 
+;; eshell
+
+(defun eshell/z (&optional regexp)
+    "Navigate to a previously visited directory in eshell, or to
+any directory proferred by `consult-dir'."
+    (let ((eshell-dirs (delete-dups
+                        (mapcar 'abbreviate-file-name
+                                (ring-elements eshell-last-dir-ring)))))
+      (cond
+       ((and (not regexp) (featurep 'consult-dir))
+        (let* ((consult-dir--source-eshell `(:name "Eshell"
+                                             :narrow ?e
+                                             :category file
+                                             :face consult-file
+                                             :items ,eshell-dirs))
+               (consult-dir-sources (cons consult-dir--source-eshell
+                                          consult-dir-sources)))
+          (eshell/cd (substring-no-properties
+                      (consult-dir--pick "Switch directory: ")))))
+       (t (eshell/cd (if regexp (eshell-find-previous-directory regexp)
+                            (completing-read "cd: " eshell-dirs)))))))
+
+
 ;; AI
 ;; gptel
 
@@ -405,6 +416,7 @@ point reaches the beginning or end of the buffer, stop there."
 (require 'gptel-rewrite)
 (require 'phsu-secrets)
 
+(setq gptel-log-level 'debug)
 
 (setq gptel-deepseek-backend
       (apply #'gptel-make-openai "deepseek"
@@ -414,8 +426,20 @@ point reaches the beginning or end of the buffer, stop there."
       (apply #'gptel-make-anthropic "anthropic"
              (plist-get gptel-backend-configs :anthropic)))
 
+(gptel-make-gemini "gemini" :key "AIzaSyA5QLXo8GiEL6eE9cKibFin46vUl2HQk5U" :stream t)
+
+
+;; TODO clean-up (manage backends from emacs better)
+(setq gptel-llamacpp-backend
+      (gptel-make-openai "gemma"          ;Any name
+        :stream t                             ;Stream responses
+        :protocol "http"
+        :host "localhost:1234"                ;Llama.cpp server location
+        :models '(local)
+       ))
+
 (setq gptel-backend gptel-anthropic-backend)
-(setq gptel-model 'claude-3-5-sonnet-20241022)
+(setq gptel-model 'claude-3-7-sonnet-20250219)
 
 (add-hook 'gptel-post-response-functions 'gptel-end-of-response)
 
@@ -545,6 +569,19 @@ Works on demand for any org file, extracting title and tags from its contents."
         ;; dictionary-default-dictionary "gcide"
         dictionary-server             "dict.org")
 
+
+(require 'notifications)
+(defun my-on-action-function (id key)
+  (message "Message %d, key \"%s\" pressed" id key))
+(defun my-on-close-function (id reason)
+  (message "Message %d, closed due to \"%s\"" id reason))
+
+(notifications-notify
+ :title "Title"
+ :body "This is <b>important</b>."
+ :actions '("Confirm" "I agree" "Refuse" "I disagree")
+ :on-action 'my-on-action-function
+ :on-close 'my-on-close-function)
 
 ;; Profile emacs startup
 (add-hook 'emacs-startup-hook

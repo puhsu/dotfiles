@@ -26,9 +26,11 @@
     pkgs.devenv # pixi from the nix world (still no idea why I need this)
     pkgs.cachix
     pkgs.zig
+    pkgs.dtach
     pkgs.zls
     
     pkgs.ncdu
+    pkgs.pigz
 
     # for remote development
     pkgs.unison
@@ -41,6 +43,8 @@
     pkgs.exercism
     pkgs.eternal-terminal
     pkgs.jujutsu
+    pkgs.llama-cpp
+
     
     # spell checking lib
     pkgs.enchant
@@ -109,10 +113,10 @@
 
   programs.emacs = {
     enable = true;
-    package = pkgs.emacs-git;
+    # package = pkgs.emacs-unstable;
     extraPackages = epkgs: [
       epkgs.vertico
-      epkgs.eat
+      
       epkgs.jinx
       epkgs.orderless
       epkgs.marginalia
@@ -138,12 +142,19 @@
       epkgs.modus-themes
       epkgs.spacious-padding
 
+      # terminal emulators
+      epkgs.eat
+      epkgs.vterm 
+
+      epkgs.detached
+
       epkgs.nix-mode
       epkgs.denote
       epkgs.dwim-shell-command
       epkgs.nongnuPackages.zig-mode
       epkgs.eglot
       epkgs.dape
+      epkgs.ruff-format
 
       # todo: learn how to move this stuff to modules
       (epkgs.melpaBuild {
